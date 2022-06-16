@@ -1,0 +1,860 @@
+﻿openapi: 3.0.1
+info:
+  title: Clip Zip Ship Admin API
+  description: This is the Clip Zip Ship Admin API
+  version: 1.0.0
+servers:
+  - url: https://localhost:5001/api
+    description: Local development environment
+paths:
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: Generates a JWT for a given User
+      description: Generates a JWT for a given User
+      operationId: routes.rt_api.login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          $ref: '#/components/responses/AccessToken'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/InvalidCredentials'
+
+  /logout:
+    delete:
+      tags:
+        - Authentication
+      summary: Logs out the User from the API
+      description: Logs out the User from the API
+      operationId: routes.rt_api.logout
+      security:
+        - BearerAuth: [ ]
+      responses:
+        204:
+          description:
+            Successfully logged out and revoked the authentication token forever
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Re-generates a JWT using a refresh token
+      description: Re-generates a JWT using a refresh token
+      operationId: routes.rt_api.refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+      responses:
+        200:
+          $ref: '#/components/responses/AccessToken'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/InvalidCredentials'
+
+  /users:
+    get:
+      tags:
+        - User
+      summary: Lists the users
+      description: Lists the users in the system and their roles
+      operationId: routes.rt_api.get_users
+      security:
+        - BearerAuth: [ ]
+      responses:
+        200:
+          description: List of Users
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/UnauthorizedInvalidScopeError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /user:
+    post:
+      tags:
+        - User
+      summary: Creates a new User in the database
+      description: The User to create. Username is case insensitive. Password is case sensitive.
+      operationId: routes.rt_api.post_user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      security:
+        - BearerAuth: [ ]
+      responses:
+        204:
+          description: Successfully created the User
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/UnauthorizedInvalidScopeError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /user/{username}:
+    patch:
+      tags:
+        - User
+      summary: Updates a User in the database
+      description: The User to update. Username is case insensitive.
+      operationId: routes.rt_api.patch_users
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type:
+              string
+      security:
+        - BearerAuth: [ ]
+      responses:
+        204:
+          description: Successfully updated the User
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/UnauthorizedInvalidScopeError'
+        404:
+          $ref: '#/components/responses/UserNotFound'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags:
+        - User
+      summary: Deletes a User from the database
+      description: The User to delete. Username is case insensitive.
+      operationId: routes.rt_api.delete_user
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type:
+              string
+      security:
+        - BearerAuth: [ ]
+      responses:
+        204:
+          description: Successfully deleted the User
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/UnauthorizedInvalidScopeError'
+        404:
+          $ref: '#/components/responses/UserNotFound'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /collections:
+    put:
+      summary: Adds a new Collection
+      description: Adds a new Collection
+      operationId: routes.rt_api.put_collections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionAdd'
+        description: Mandatory execute request JSON
+        required: true
+      #security:
+      #  - BearerAuth: [ ]
+      responses:
+        204:
+          description: Successfully created the collection
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        default:
+          $ref: '#/components/responses/InternalError'
+      tags:
+      - Collections
+    
+  /collections/{collection}:
+    delete:
+      summary: Delete a Collection
+      description: Deletes a Collection
+      operationId: routes.rt_api.delete_collection
+      parameters:
+      - name: collection
+        in: path
+        description: Collection name to delete
+        required: true
+        schema:
+          type: string
+          example: "coll_name"
+      #security:
+      #  - BearerAuth: [ ]
+      responses:
+        204:
+          description: Successfully deleted the collection
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        default:
+          $ref: '#/components/responses/InternalError'
+      tags:
+      - Collections
+
+  /metadata/{uuid}:
+    get:
+      summary: Get the FGP metadata for the uuid
+      description: Queries the FGP for the metadata.
+      operationId: routes.rt_api.get_metadata
+      parameters:
+      - name: uuid
+        in: path
+        description: The metadata unique identifier
+        required: true
+        schema:
+          type: string
+          example: "62de5952-a5eb-4859-b086-22a8ba8024b8"
+      responses:
+        '200':
+          $ref: '#/components/responses/Metadata'
+        '400':
+          $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/InvalidParameter
+        '500':
+          $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/ServerError
+      tags:
+      - Admin
+
+  /parents:
+    get:
+      summary: Get the list of available Parents for the Collections
+      description: Queries the Parents for the Collections.
+      operationId: routes.rt_api.get_parents
+      responses:
+        '200':
+          $ref: '#/components/responses/Parents'
+        '400':
+          $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/InvalidParameter
+        '500':
+          $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/ServerError
+      tags:
+      - Admin
+    
+    
+components:
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      #x-bearerInfoFunc: auth.decode_token_ok
+      x-bearerInfoFunc: flask_jwt_extended.decode_token
+
+  parameters:
+    f:
+      name: f
+      description: The optional f parameter indicates the output format which the
+        server shall provide as part of the response document. The default format
+        is GeoJSON.
+      explode: false
+      in: query
+      required: false
+      schema:
+        default: json
+        enum:
+        - json
+        - html
+        - jsonld
+        type: string
+      style: form
+    lang:
+      name: lang
+      description: The optional lang parameter instructs the server return a response
+        in a certain language, if supported. If the language is not among the available
+        values, the Accept-Language header language will be used if it is supported.
+        If the header is missing, the default server language is used. Note that providers
+        may only support a single language (or often no language at all), that can
+        be different from the server language. Language strings can be written in
+        a complex (e.g. "fr-CA,fr;q=0.9,en-US;q=0.8,en;q=0.7"), simple (e.g. "de")
+        or locale-like (e.g. "de-CH" or "fr_BE") fashion.
+      in: query
+      required: false
+      schema:
+        default: en-US
+        enum:
+        - en-US
+        - fr-CA
+        type: string
+    bbox:
+      name: bbox
+      description: |-
+        Only features that have a geometry that intersects the bounding box are selected.
+        The bounding box is provided as four or six numbers, depending on whether the
+        coordinate reference system includes a vertical axis (height or depth):
+
+        * Lower left corner, coordinate axis 1
+        * Lower left corner, coordinate axis 2
+        * Minimum value, coordinate axis 3 (optional)
+        * Upper right corner, coordinate axis 1
+        * Upper right corner, coordinate axis 2
+        * Maximum value, coordinate axis 3 (optional)
+
+        The coordinate reference system of the values is WGS 84 longitude/latitude
+        (http://www.opengis.net/def/crs/OGC/1.3/CRS84) unless a different coordinate
+        reference system is specified in the parameter `bbox-crs`.
+
+        For WGS 84 longitude/latitude the values are in most cases the sequence of
+        minimum longitude, minimum latitude, maximum longitude and maximum latitude.
+        However, in cases where the box spans the antimeridian the first value
+        (west-most box edge) is larger than the third value (east-most box edge).
+
+        If the vertical axis is included, the third and the sixth number are
+        the bottom and the top of the 3-dimensional bounding box.
+
+        If a feature has multiple spatial geometry properties, it is the decision of the
+        server whether only a single spatial geometry property is used to determine
+        the extent or all relevant geometries.
+      in: query
+      required: false
+      schema:
+        type: array
+        minItems: 4
+        maxItems: 6
+        items:
+          type: number
+        default:
+        - -113.43
+        - 53.51
+        - -113.22
+        - 53.59
+      style: form
+      explode: false
+    bbox-crs:
+      name: bbox-crs
+      description: |-
+        Indicates the EPSG for the given bbox coordinates
+      in: query
+      required: false
+      schema:
+        type: number
+        format: integer
+        default: 4617
+      style: form
+      explode: false
+    geom:
+      name: geom
+      description: |-
+        Only features that have a geometry that intersects the provided geometry are selected.
+        The geometry is provided as a well known text format (WKT)
+
+        The coordinate reference system of the values is WGS 84 longitude/latitude
+        (http://www.opengis.net/def/crs/OGC/1.3/CRS84) unless a different coordinate
+        reference system is specified in the parameter `geom-crs`.
+      in: query
+      required: false
+      schema:
+        type: string
+        default: POLYGON ((-113.43 53.51, -113.43 53.59, -113.22 53.59, -113.22 53.51, -113.43 53.51))
+      style: form
+      explode: false
+    geom-crs:
+      name: geom-crs
+      description: |-
+        Indicates the EPSG for the given geom wkt
+      in: query
+      required: false
+      schema:
+        type: number
+        format: integer
+        default: 4617
+      style: form
+      explode: false
+
+  responses:
+    AccessToken:
+      description: An access token and a refresh token for a given User
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccessTokenResponse'
+    InvalidCredentials:
+      description: Invalid credentials provided.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Bad request received on server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnauthorizedError:
+      description: Access token is missing or invalid
+      headers:
+        WWW_Authenticate:
+          schema:
+            type: string
+            example: "Bearer"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnauthorizedInvalidScopeError:
+      description: Access token does not have the required scope
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Internal error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    CollectionNotFound:
+      description: Collection information with given id not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UserNotFound:
+      description: User with given username not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Metadata:
+      description: Metadata information
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MetadataResponse'
+    Parents:
+      description: Parents information
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ParentsResponse'
+
+  schemas:
+    collection:
+      type: object
+      required:
+        - id
+        - links
+      properties:
+        id:
+          description: identifier of the collection used, for example, in URIs
+          type: string
+          example: address
+        title:
+          description: human readable title of the collection
+          type: string
+          example: address
+        description:
+          description: a description of the features in the collection
+          type: string
+          example: An address.
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/link"
+          example:
+            - href: http://data.example.com/buildings
+              rel: item
+            - href: http://example.com/concepts/buildings.html
+              rel: describedBy
+              type: text/html
+        extent:
+          $ref: "#/components/schemas/extent"
+        itemType:
+          description: indicator about the type of the items in the collection (the default value is 'feature').
+          type: string
+          default: feature
+        crs:
+          description: the list of coordinate reference systems supported by the service
+          type: array
+          items:
+            type: string
+          default:
+            - http://www.opengis.net/def/crs/OGC/1.3/CRS84
+          example:
+            - http://www.opengis.net/def/crs/OGC/1.3/CRS84
+            - http://www.opengis.net/def/crs/EPSG/0/4326
+    collections:
+      type: object
+      required:
+        - links
+        - collections
+      properties:
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/link"
+        collections:
+          type: array
+          items:
+            $ref: "#/components/schemas/collection"
+    link:
+      type: object
+      required:
+        - href
+      properties:
+        href:
+          type: string
+          example: http://data.example.com/buildings/123
+        rel:
+          type: string
+          example: alternate
+        type:
+          type: string
+          example: application/geo+json
+        hreflang:
+          type: string
+          example: en
+        title:
+          type: string
+          example: Trierer Strasse 70, 53115 Bonn
+        length:
+          type: integer
+    extent:
+      type: object
+      description: |-
+        The extent of the features in the collection. In the Core only spatial and temporal
+        extents are specified. Extensions may add additional members to represent other
+        extents, for example, thermal or pressure ranges.
+      properties:
+        spatial:
+          description: |-
+            The spatial extent of the features in the collection.
+          type: object
+          properties:
+            bbox:
+              description: |-
+                One or more bounding boxes that describe the spatial extent of the dataset.
+                In the Core only a single bounding box is supported. Extensions may support
+                additional areas. If multiple areas are provided, the union of the bounding
+                boxes describes the spatial extent.
+              type: array
+              minItems: 1
+              items:
+                description: |-
+                  Each bounding box is provided as four or six numbers, depending on
+                  whether the coordinate reference system includes a vertical axis
+                  (height or depth):
+
+                  * Lower left corner, coordinate axis 1
+                  * Lower left corner, coordinate axis 2
+                  * Minimum value, coordinate axis 3 (optional)
+                  * Upper right corner, coordinate axis 1
+                  * Upper right corner, coordinate axis 2
+                  * Maximum value, coordinate axis 3 (optional)
+
+                  The coordinate reference system of the values is WGS 84 longitude/latitude
+                  (http://www.opengis.net/def/crs/OGC/1.3/CRS84) unless a different coordinate
+                  reference system is specified in `crs`.
+
+                  For WGS 84 longitude/latitude the values are in most cases the sequence of
+                  minimum longitude, minimum latitude, maximum longitude and maximum latitude.
+                  However, in cases where the box spans the antimeridian the first value
+                  (west-most box edge) is larger than the third value (east-most box edge).
+
+                  If the vertical axis is included, the third and the sixth number are
+                  the bottom and the top of the 3-dimensional bounding box.
+
+                  If a feature has multiple spatial geometry properties, it is the decision of the
+                  server whether only a single spatial geometry property is used to determine
+                  the extent or all relevant geometries.
+                type: array
+                minItems: 4
+                maxItems: 6
+                items:
+                  type: number
+                example:
+                  - -180
+                  - -90
+                  - 180
+                  - 90
+            crs:
+              description: |-
+                Coordinate reference system of the coordinates in the spatial extent
+                (property `bbox`). The default reference system is WGS 84 longitude/latitude.
+                In the Core this is the only supported coordinate reference system.
+                Extensions may support additional coordinate reference systems and add
+                additional enum values.
+              type: string
+              enum:
+                - 'http://www.opengis.net/def/crs/OGC/1.3/CRS84'
+              default: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84'
+        temporal:
+          description: |-
+            The temporal extent of the features in the collection.
+          type: object
+          properties:
+            interval:
+              description: |-
+                One or more time intervals that describe the temporal extent of the dataset.
+                The value `null` is supported and indicates an open time intervall.
+                In the Core only a single time interval is supported. Extensions may support
+                multiple intervals. If multiple intervals are provided, the union of the
+                intervals describes the temporal extent.
+              type: array
+              minItems: 1
+              items:
+                description: |-
+                  Begin and end times of the time interval. The timestamps
+                  are in the coordinate reference system specified in `trs`. By default
+                  this is the Gregorian calendar.
+                type: array
+                minItems: 2
+                maxItems: 2
+                items:
+                  type: string
+                  format: date-time
+                  nullable: true
+                example:
+                  - '2011-11-11T12:22:11Z'
+                  - null
+            trs:
+              description: |-
+                Coordinate reference system of the coordinates in the temporal extent
+                (property `interval`). The default reference system is the Gregorian calendar.
+                In the Core this is the only supported temporal reference system.
+                Extensions may support additional temporal reference systems and add
+                additional enum values.
+              type: string
+              enum:
+                - 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
+              default: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
+    collbbox:
+      properties:
+        bbox:
+          type: array
+          items:
+            type: number
+            format: float
+          example:
+          - -113.43
+          - 53.51
+          - -113.22
+          - 53.59
+        bboxcrs:
+          type: number
+          format: integer
+          example: 4617
+        geom:
+          type: string
+          example: POLYGON ((-113.43 53.51, -113.43 53.59, -113.22 53.59, -113.22 53.51, -113.43 53.51))
+        geomcrs:
+          type: number
+          format: integer
+          example: 4617
+
+    MetadataResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+        title_en:
+          type: string
+        title_fr:
+          type: string
+        keywords_en:
+          type: array
+          items:
+            type: string
+        keywords_fr:
+          type: array
+          items:
+            type: string
+        cogs:
+          type: array
+          items:
+            type: object
+
+    ParentsResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          theme_uuid:
+            type: string
+          theme_en:
+            type: string
+          theme_fr:
+            type: string
+          parents:
+            type: array
+            items:
+              type: object
+              properties:
+                parent_uuid:
+                  type: string
+                parent_en:
+                  type: string
+                parent_fr:
+                  type: string
+
+    CollectionAdd:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "feature"
+        parent_uuid:
+          type: string
+          example: 17e4197a-a764-475d-ab67-a2fb920e2300
+        metadata_uuid:
+          type: string
+          example: f5f2db55-31e4-42fb-8c73-23e1c44de9b2
+        name:
+          type: string
+          example: "coll_name"
+        title_en:
+          type: string
+          example: "coll_title_en"
+        title_fr:
+          type: string
+          example: "coll_title_fr"
+        description_en:
+          type: string
+          example: "coll_desc_en"
+        description_fr:
+          type: string
+          example: "coll_desc_fr"
+        keywords_en:
+          type: array
+          items: 
+            type: string
+          example: ['Canada', 'National']
+        keywords_fr:
+          type: array
+          items: 
+            type: string
+          example: ['Canada', 'National']
+        crs:
+          type: integer
+          example: 3978
+        extent_bbox:
+          type: array
+          items:
+            type: number
+          example:
+            - -141.0
+            - 40.04
+            - -47.74
+            - 86.46
+        extent_crs:
+          type: string
+          example: http://www.opengis.net/def/crs/OGC/1.3/CRS84
+        extent_temporal_begin:
+          type: string
+          format: date
+          example: 2022-06-14
+        extent_temporal_end:
+          type: string
+          format: date
+          example: 2022-06-15
+        geom_wkt:
+          type: string
+          example: POLYGON((-113.43 53.51, -113.43 53.59, -113.22 53.59, -113.22 53.51, -113.43 53.51))
+        geom_crs:
+          type: integer
+          example: 4617
+        table_name:
+          type: string
+          example: Metal mines
+        table_id_field:
+          type: string
+          example: OBJECTID
+        table_queryables:
+          type: array
+          items:
+            type: string
+          example:
+            - attribute_name_1
+            - attribute_name_2
+        cov_data:
+          type: string
+          example: https://datacube-prod-data-public.s3.ca-central-1.amazonaws.com/store/eo4ce/landcover/landcover-2010-cog.tif
+        cov_format_name:
+          type: string
+          example: GTiff
+    Language:
+      type: object
+      properties:
+        en:
+          type: string
+          example: "Text in english"
+        fr:
+          type: string
+          example: "Texte en français"
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          example: John
+        password:
+          type: string
+          example: password
+    RefreshToken:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+    AccessTokenResponse:
+      required:
+        - access_token
+        - expires_in
+        - refresh_token
+        - refresh_expires_in
+        - token_type
+      properties:
+        access_token:
+          type: string
+          description: The access JWT token for the User
+        expires_in:
+          type: integer
+          description: The number of seconds until the token expires
+        refresh_token:
+          type: string
+          description: The refresh JWT token for the User
+        refresh_expires_in:
+          type: integer
+          description: The number of seconds until the refresh token expires
+        token_type:
+          type: string
+          description: The token type, always Bearer
+          example: Bearer
+    ErrorResponse:
+      required:
+        - status
+        - title
+        - detail
+      properties:
+        status:
+          type: integer
+          description: Error type (401, 402, 403, 500, etc).
+        title:
+          type: string
+          description: Error title
+        detail:
+          type: string
+          description: Error description
+        detail_fr:
+          type: string
+          description: Error description in French
+        type:
+          type: string
+          description: Error type

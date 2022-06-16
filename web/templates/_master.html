@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NRCan PyGeoAPI Admin API</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css')}}"/>
+    <link rel="apple-touch-icon" sizes="57x57 72x72 114x114 144x144 150x150" class="wb-favicon" href="https://wet-boew.github.io/themes-dist/GCWeb/GCWeb/assets/favicon-mobile.png">
+    <link href="https://wet-boew.github.io/themes-dist/GCWeb/GCWeb/assets/favicon.ico" rel="shortcut icon" type="image/x-icon" class="wb-init">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://wet-boew.github.io/themes-dist/GCWeb/GCWeb/css/theme.min.css">
+    <noscript>
+        <link rel="stylesheet" href="https://wet-boew.github.io/themes-dist/GCWeb/GCWeb/wet-boew/css/noscript.min.css"/>
+    </noscript>
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='czs.css')}}"/>
+    <script src="{{ url_for('static', filename='jquery.js')}}"></script>
+    <script src="{{ url_for('static', filename='jquery-cookie.js')}}"></script>
+    <script src="{{ url_for('static', filename='czs.js')}}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js')}}"></script>
+    {% block head %}
+    <script type="text/javascript">
+        document.___CSRF_TOKEN = "{{ csrf_token() }}";
+        document.___API_URL = "{{ api_url }}";
+    </script>
+    {% endblock %}
+</head>
+
+<body vocab="http://schema.org/" resource="#wb-webpage" typeof="WebPage" class="page-type-nav czs">
+
+<!-- WET HEADER -->
+<header>
+    <!-- WET HEADER MENU -->
+    <div id="wb-bnr" class="container">
+        <div class="row">
+            <!-- Language selection -->
+            <section id="wb-lng" class="col-xs-3 col-sm-12 pull-right text-right">
+                <h2 class="wb-inv">Language selection</h2>
+                <ul class="list-inline margin-bottom-none">
+                    <li>
+                        {% if lang == 'fr' %}
+                        <a href="{{ alt_url }}" lang="en" title="Natural Resources Canada"><span class="hidden-xs">English</span>
+                            <abbr title="English" class="visible-xs h3 mrgn-tp-sm mrgn-bttm-0 text-uppercase">en</abbr>
+                        </a>
+                        {% else %}
+                        <a href="{{ alt_url }}" lang="fr" title="Ressources naturelles Canada"><span class="hidden-xs">Français</span>
+                            <abbr title="Français" class="visible-xs h3 mrgn-tp-sm mrgn-bttm-0 text-uppercase">fr</abbr>
+                        </a>
+                        {% endif %}
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Canada Logo -->
+            <div class="brand col-xs-9 col-sm-5 col-md-4" property="publisher" typeof="GovernmentOrganization">
+                <a href="https://www.canada.ca/en.html" property="url">
+                    <img src="https://wet-boew.github.io/themes-dist/GCWeb/GCWeb/assets/sig-blk-en.svg" class="logo-en" alt="Government of Canada" property="logo">
+                    <span class="wb-inv"> / <span lang="fr">Gouvernement du Canada</span></span></a>
+                <meta property="name" content="Government of Canada">
+                <meta property="areaServed" typeof="Country" content="Canada">
+                <link property="logo" href="https://www.rncan.gc.ca/sites/all/libraries/canadaca/GCWeb/assets/sig-blk-en.svg">
+            </div>
+
+            <!-- Search the website -->
+            <section id="wb-srch" class="col-lg-offset-4 col-md-offset-4 col-sm-offset-2 col-xs-12 col-sm-5 col-md-4">
+                <h2>Search</h2>
+                <form action="https://www.canada.ca/en/natural-resources-canada/search.html" method="get" role="search" class="form-inline">
+                    <div class="form-group wb-srch-qry">
+                        <label for="wb-srch-q" class="wb-inv">Search the website</label>
+                        <input id="wb-srch-q" list="wb-srch-q-ac" class="wb-srch-q form-control" name="q" type="search" value="" size="34" maxlength="170" placeholder="Search the website">
+                    </div>
+                    <div class="form-group submit">
+                        <button type="submit" id="wb-srch-sub" class="btn btn-primary btn-small" name="op">
+                            <span class="glyphicon-search glyphicon"></span><span class="wb-inv">Search</span></button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+    <nav class="gcweb-menu" typeof="SiteNavigationElement" id="wb-site-nav">
+        <div class="container">
+            <h2 class="wb-inv">Menu</h2>
+            <button type="button" aria-haspopup="true" aria-expanded="false" aria-label="Press the SPACEBAR to expand or the escape key to collapse this menu. Use the Up and Down arrow keys to choose a submenu item. Press the Enter or Right arrow key to expand it, or the Left arrow or Escape key to collapse it. Use the Up and Down arrow keys to choose an item on that level and the Enter key to access it.">
+                <span class="wb-inv">Main </span>Menu <span class="expicon glyphicon glyphicon-chevron-down"></span>
+            </button>
+            <ul role="menu" aria-orientation="vertical" data-ajax-replace="https://www.canada.ca/content/dam/canada/sitemenu/sitemenu-v2-{{ lang }}.html" class="wb-init" id="wb-menu"></ul>
+        </div>
+    </nav>
+    <!-- END WET HEADER MENU -->
+
+    <!-- WET Breadcrumb -->
+    <nav role="navigation" id="wb-bc" class="" property="breadcrumb"><h2>You are here</h2>
+        <div class="container">
+            <ol class="breadcrumb">
+                <li><a href="https://www.canada.ca/en.html">Canada.ca</a></li>
+                <li><a href="https://www.nrcan.gc.ca/home">Ressources naturelles Canada</a></li>
+                <li><a href="/">Clip Zip Ship Admin</a></li>
+            </ol>
+        </div>
+    </nav>
+    <!-- END WET Breadcrumb -->
+</header>
+
+<!-- OUR MAIN NAV -->
+<nav class="navbar navbar-default" role="navigation">
+    <div id="wb-bnr-api" class="container">
+        <div class="row">
+            <ul class="nav navbar-nav">
+                {% if lang == 'fr' %}
+                <li><a href="/fr/accueil">Accueil</a></li>
+                <li><a href="/fr/add">Ajouter</a></li>
+                {% else %}
+                <li><a href="/en/home">Home</a></li>
+                <li><a href="/en/add">Add</a></li>
+                {% endif %}
+            </ul>
+            {% if user %}
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.role >= roles["ADMIN"] %}
+                <li><a href="/admin/users">Admin</a></li>
+                {% endif %}
+                <li>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <span>{{ user.username }}</span>
+                        <span class="glyphicon glyphicon-triangle-bottom"></span>
+                        <ul class="dropdown-menu">
+                            {% if lang == 'fr' %}
+                            <li><a href="/profile">Mon profil</a></li>
+                            <li><a href="/fr/logout">Se déconnecter</a></li>
+                            {% else %}
+                            <li><a href="/profile">My Profile</a></li>
+                            <li><a href="/en/logout">Log out</a></li>
+                            {% endif %}
+                        </ul>
+                    </a>
+                </li>
+            </ul>
+
+            {% else %}
+            <ul class="nav navbar-nav navbar-right">
+                {% if lang == 'fr' %}
+                <li><a href="/fr/login">Se connecter</a></li>
+                {% else %}
+                <li><a href="/en/login">Log in</a></li>
+                {% endif %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<!-- USER MESSAGES -->
+<div class="messages">
+    <div class="container">
+        <div class="row">
+            <div class="messages-wrapper">
+                <section class="alert alert-success" style="display:none;">
+                    <p class="msg-content"></p>
+                </section>
+                <section class="alert alert-warning" style="display:none;">
+                    <p class="msg-content"></p>
+                </section>
+                <section class="alert alert-fail" style="display:none;">
+                    <p class="msg-content"></p>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<main id="content">
+    {% block content %}
+
+    <!-- Header -->
+    <div class="nrcan-header">
+        {% block nrcanheader %}
+        {% endblock %}
+
+        <div class="ip-cover-img ip-cover-hide-mobile"
+             style="background-image: url('https://www.nrcan.gc.ca/sites/nrcan/files/images/canadaca_backgrounds/nrcan1.jpg'); background-repeat: no-repeat;">
+
+            <div class="headline container">
+                <div class="row">
+                    <div class="col-md-7 mrgn-bttm-lg">
+                        {% block nrcanheadercontent %}
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="nrcan-body container">
+        {% block nrcanbody %}
+        {% endblock %}
+    </div>
+
+    {% endblock %}
+</main>
+
+<div id="footer">
+    {% if lang == 'fr' %}
+    <footer id="wb-info">
+        <div class="landscape">
+            <nav class="container wb-navcurr">
+                <h2 class="wb-inv">About government</h2>
+                <ul class="list-unstyled colcount-sm-2 colcount-md-3">
+                    <li class="menu-109703 first">
+                        <a href="http://contact-contactez.nrcan-rncan.gc.ca/index.cfm?lang=fra&amp;context=[current-page:url:args:first]">Contactez-nous</a>
+                    </li>
+                    <li class="menu-109704">
+                        <a href="https://www.canada.gc.ca/fr/gouvernement/min.html">Ministères et organismes</a></li>
+                    <li class="menu-109705">
+                        <a href="https://www.canada.gc.ca/fr/gouvernement/fonctionpublique.html">Fonction publique et force militaire</a>
+                    </li>
+                    <li class="menu-109706"><a href="https://www.canada.gc.ca/fr/nouvelles.html">Nouvelles</a></li>
+                    <li class="menu-109707">
+                        <a href="https://www.canada.ca/fr/gouvernement/systeme/lois.html">Traités, lois et règlements</a>
+                    </li>
+                    <li class="menu-109708">
+                        <a href="https://www.canada.gc.ca/fr/transparence/rapports.html">Rapports à l'échelle du gouvernement</a>
+                    </li>
+                    <li class="menu-109709"><a href="https://pm.gc.ca/fr">Premier ministre</a></li>
+                    <li class="menu-109710">
+                        <a href="https://www.canada.ca/fr/gouvernement/systeme.html">À propos du gouvernement</a></li>
+                    <li class="menu-109711 last"><a href="http://ouvert.canada.ca/">Gouvernement ouvert</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="brand">
+            <div class="container">
+                <div class="row">
+                    <nav class="col-md-9 col-lg-10 ftr-urlt-lnk">
+                        <h2 class="wb-inv">À propos de ce site</h2>
+                        <ul class="">
+                            <li class="menu-109689 first">
+                                <a href="https://www.canada.ca/fr/sociaux.html">Médias sociaux</a></li>
+                            <li class="menu-109690">
+                                <a href="https://www.canada.ca/fr/mobile.html">Applications mobiles</a></li>
+                            <li class="menu-109691">
+                                <a href="https://www.canada.ca/fr/gouvernement/a-propos.html">À propos de Canada.ca</a>
+                            </li>
+                            <li class="menu-109692"><a href="https://www.rncan.gc.ca/avis/10848">Avis</a></li>
+                            <li class="menu-109693 last">
+                                <a href="https://www.canada.ca/fr/transparence/confidentialite.html">Confidentialité</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <div class="col-xs-6 visible-sm visible-xs tofpg">
+                        <a href="#wb-cont">Haut de la page <span class="glyphicon glyphicon-chevron-up"></span></a>
+                    </div>
+                    <div class="col-xs-6 col-md-3 col-lg-2 text-right">
+                        <img src="https://wet-boew.github.io/themes-dist/GCWeb/GCWeb/assets/wmms-blk.svg" alt="Symbole du gouvernement du Canada">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% else %}
+    <!-- Static footer starts -->
+    <footer id="wb-info">
+        <div class="landscape">
+            <nav class="container wb-navcurr">
+                <h2 class="wb-inv">About government</h2>
+                <ul class="list-unstyled colcount-sm-2 colcount-md-3">
+                    <li><a href="https://www.canada.ca/en/contact.html">Contact us</a></li>
+                    <li><a href="https://www.canada.ca/en/government/dept.html">Departments and agencies</a></li>
+                    <li><a href="https://www.canada.ca/en/government/publicservice.html">Public service and military</a>
+                    </li>
+                    <li><a href="https://www.canada.ca/en/news.html">News</a></li>
+                    <li>
+                        <a href="https://www.canada.ca/en/government/system/laws.html">Treaties, laws and regulations</a>
+                    </li>
+                    <li><a href="https://www.canada.ca/en/transparency/reporting.html">Government-wide reporting</a>
+                    </li>
+                    <li><a href="https://pm.gc.ca/eng">Prime Minister</a></li>
+                    <li><a href="https://www.canada.ca/en/government/system.html">How government works</a></li>
+                    <li><a href="https://open.canada.ca/en/">Open government</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="brand">
+            <div class="container">
+                <div class="row">
+                    <nav class="col-md-9 col-lg-10 ftr-urlt-lnk">
+                        <h2 class="wb-inv">About this site</h2>
+                        <ul>
+                            <li><a href="https://www.canada.ca/en/social.html">Social media</a></li>
+                            <li><a href="https://www.canada.ca/en/mobile.html">Mobile applications</a></li>
+                            <li><a href="https://www1.canada.ca/en/newsite.html">About Canada.ca</a></li>
+                            <li><a href="https://www.canada.ca/en/transparency/terms.html">Terms and conditions</a></li>
+                            <li><a href="https://www.canada.ca/en/transparency/privacy.html">Privacy</a></li>
+                        </ul>
+                    </nav>
+                    <div class="col-xs-6 visible-sm visible-xs tofpg"><a href="#wb-cont">Top of Page
+                        <span class="glyphicon glyphicon-chevron-up"></span></a></div>
+                    <div class="col-xs-6 col-md-3 col-lg-2 text-right">
+                        <img src="https://wet-boew.github.io/themes-dist/GCWeb/GCWeb/assets/wmms-blk.svg" alt="Symbol of the Government of Canada">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endif %}
+</div>
+
+<script src="https://wet-boew.github.io/themes-dist/GCWeb/wet-boew/js/wet-boew.min.js"></script>
+<script src="https://wet-boew.github.io/themes-dist/GCWeb/GCWeb/js/theme.min.js"></script>
+<script src="https://wet-boew.github.io/themes-dist/GCWeb/wet-boew/js/deps/jquery.magnific-popup.min.js"></script>
+<script src="https://wet-boew.github.io/themes-dist/GCWeb/wet-boew/js/i18n/en.min.js"></script>
+<span id="wb-rsz" class="wb-init">&nbsp;</span>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{% extends '_master.html' %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#swaggerAnchor").attr("href", document.___API_URL + "/ui/");
+    });
+</script>
+{% endblock %}
+
+
+{% block nrcanheadercontent %}
+
+{% if lang == 'fr' %}
+<h1 property="name" id="wb-cont">Clip Zip Ship Admin</h1>
+<p>Améliorer la qualité de vie des Canadiens et Canadiennes en veillant à ce que nos ressources naturelles abondantes soient exploitées de façon durable, compétitive et inclusive.</p>
+<p>Cet API offre des fonctions de gestion des collections pour Clip Zip Ship.</p>
+{% else %}
+<h1 property="name" id="wb-cont">Clip Zip Ship Admin</h1>
+<p>Committed to improving the quality of life of Canadians by ensuring the country’s abundant natural resources are developed sustainably, competitively and inclusively.</p>
+<p>This API offers functions to manage Clip Zip Ship collections.</p>
+{% endif %}
+
+{% endblock %}
+
+{% block nrcanbody %}
+
+{% if lang == 'fr' %}
+<h2>Plus d'informations</h2>
+<p>Cet API est fantastique!</p>
+{% else %}
+<h2>More information</h2>
+<p>This API is awesome!</p>
+{% endif %}
+
+{% if using_connexion %}
+<p>To learn more about the possibilities of this API, please view the <a id="swaggerAnchor">Swagger User Interface</a>.</p>
+{% else %}
+<p>Load the API with Connexion to have the option to view the Swagger User Interface.</p>
+{% endif %}
+
+{% endblock %}
+
+

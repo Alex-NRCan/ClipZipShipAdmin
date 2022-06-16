@@ -1,0 +1,21 @@
+{% extends '_master.html' %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Logs the user out
+        logoutUser('{{ lang }}');
+    });
+</script>
+{% endblock %}
+
+{% block nrcanheadercontent %}
+{% if lang == 'fr' %}
+<h2>Déconnexion en cours, veuillez patienter...</h2>
+{% else %}
+<h2>Logging out, please wait...</h2>
+{% endif %}
+{% endblock %}
+
+

@@ -1,0 +1,147 @@
+{% extends 'admin/_master.html' %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+    function uiCreateUser() {
+        var username = $("#create_user_username").val();
+        createUser({
+            username: username,
+            password: $("#create_user_password").val()
+        }, function() {
+            var row = document.createElement("tr");
+            $(row).addClass("user-row");
+            $(".quality-table tbody").append(row);
+
+            // Username
+            var cell = document.createElement("td");
+            $(cell).addClass("user-username");
+            var span = document.createElement("span");
+            $(span).addClass("editable");
+            $(span).html(username);
+            $(cell).append(span);
+            var input = document.createElement("input");
+            $(input).attr("type", "text");
+            $(input).attr("value", username);
+            $(cell).append(input);
+            $(row).append(cell);
+
+            // Role
+            cell = document.createElement("td");
+            $(cell).addClass("user-role");
+            span = document.createElement("span");
+            $(span).addClass("editable");
+            $(span).html("1");
+            $(cell).append(span);
+            input = document.createElement("input");
+            $(input).attr("type", "text");
+            $(input).attr("value", "1");
+            $(cell).append(input);
+            $(row).append(cell);
+
+            // Actions
+            cell = document.createElement("td");
+            $(cell).addClass("user-actions");
+
+            span = document.createElement("span");
+            $(span).addClass("users-update glyphicon glyphicon-pencil");
+            $(span).attr("onclick", "uiUpdateUser()");
+            $(cell).append(span);
+
+            span = document.createElement("span");
+            $(span).addClass("users-update-save glyphicon glyphicon-floppy-disk");
+            $(span).attr("onclick", "uiSaveUser()");
+            $(cell).append(span);
+
+            span = document.createElement("span");
+            $(span).addClass("users-delete glyphicon glyphicon-trash");
+            $(span).attr("onclick", "uiDeleteUser()");
+            $(cell).append(span);
+            $(row).append(cell);
+        });
+    }
+
+    function uiUpdateUser() {
+        var target = event.target;
+        $(target).parents('tr.user-row').toggleClass("editing-active");
+    }
+
+    function uiSaveUser() {
+        var target = event.target;
+        var newUsernameNode = $('td.user-username input', $(target).parents('tr.user-row'));
+        var oldUsernameNode = $('td.user-username span', $(target).parents('tr.user-row'));
+        updateUser($(oldUsernameNode).html(), [{
+             "op": "replace",
+             "path": "/username",
+             "value": $(newUsernameNode).val()
+        }], function () {
+            $(target).parents('tr.user-row').toggleClass("editing-active");
+            $(oldUsernameNode).html($(newUsernameNode).val());
+        }.bind(this));
+    }
+
+    function uiDeleteUser(username) {
+        var target = event.target;
+        var usernameNode = $('td.user-username span', $(target).parents('tr.user-row'));
+        deleteUser($(usernameNode).html(), function() {
+            $(target).parents('tr.user-row').remove();
+        }.bind(this));
+    }
+
+</script>
+{% endblock %}
+
+{% block nrcanbody %}
+<div class="admin-content">
+    <h1>Users Management</h1>
+    <div class="quality-wrapper-table">
+        <table class="quality-table">
+            <thead>
+            <tr>
+                <th class="head_username">Username</th>
+                <th class="head_role">Role</th>
+                <th class="head_action">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for u in users %}
+            <tr class="user-row">
+                <td class="user-username">
+                    <span class="editable">{{ u.username() }}</span>
+                    <input type="text" value="{{ u.username() }}"/>
+                </td>
+                <td class="user-role">
+                    <span class="editable">{{ u.role() }}</span>
+                    <input type="text" value="{{ u.role() }}"/>
+                </td>
+                <td class="user-actions">
+                    <span class="users-update glyphicon glyphicon-pencil" onclick="uiUpdateUser()"></span>
+                    <span class="users-update-save glyphicon glyphicon-floppy-disk" onclick="uiSaveUser()"></span>
+                    <span class="users-delete glyphicon glyphicon-trash" onclick="uiDeleteUser()"></span>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="create-user-container">
+        <h2>Create a user</h2>
+        <div>Username</div>
+        <div>
+            <input id="create_user_username" type="text" placeholder="username" readonly
+                   onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly', true);"/>
+        </div>
+        <div>Password</div>
+        <div>
+            <input id="create_user_password" type="password" placeholder="password" readonly
+                   onfocus="this.removeAttribute('readonly');" onblur="this.setAttribute('readonly', true);"/>
+        </div>
+        <div>Submit</div>
+        <div>
+            <input type="button" value="Create/Créer" onclick="uiCreateUser();"/>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

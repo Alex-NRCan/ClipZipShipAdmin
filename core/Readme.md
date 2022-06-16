@@ -1,0 +1,1 @@
+# This folder contains Core package for Python code for Quality.

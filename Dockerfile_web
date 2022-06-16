@@ -1,0 +1,14 @@
+FROM tiangolo/uwsgi-nginx-flask:python3.8
+COPY /web/requirements.txt /app/requirements.txt
+RUN pip install --upgrade pip
+RUN pip install -r /app/requirements.txt
+COPY /web/uwsgi.ini /app/uwsgi.ini
+COPY /core /app/core
+COPY /web/routes /app/app/routes
+COPY /web/static /app/app/static
+COPY /web/templates /app/app/templates
+COPY /web/main.py /app/app/main.py
+WORKDIR /app/app
+ENV STATIC_PATH /app/app/static
+#ENTRYPOINT [ "python", "app/main.py" ]
+#CMD [ "--env", "(env)", "--port", "(port)", "--api", "(api)"]

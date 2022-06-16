@@ -1,0 +1,18 @@
+{% extends '_master.html' %}
+
+{% block content %}
+<!-- Header -->
+<div class="nrcan-header">
+    {% block nrcanheader %}
+    <!-- No fancy headers on Admin pages -->
+    {% endblock %}
+</div>
+
+<!-- Body -->
+<div class="nrcan-body container">
+    {% block nrcanbody %}
+    {% endblock %}
+</div>
+{% endblock %}
+
+

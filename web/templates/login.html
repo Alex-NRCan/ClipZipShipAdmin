@@ -1,0 +1,46 @@
+{% extends '_master.html' %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".submit_on_enter").keydown(function(e) {
+            if (e.keyCode==13) {
+                uiLoginUser();
+                return false;
+            }
+        });
+    });
+    function uiLoginUser() {
+        var urlParams = new URLSearchParams(window.location.search);
+        loginUser($("#username").val(), $("#password").val(),
+                  '{{ lang }}',
+                  urlParams.get('redirect_uri'));
+    }
+</script>
+{% endblock %}
+
+{% block nrcanheadercontent %}
+
+{% if lang == 'fr' %}
+<h1>Connexion</h1>
+<div>Nom d'utilisateur</div>
+<div><input id="username" type="text" placeholder="nom d'utilisateur" class="submit_on_enter"/></div>
+<div>Mot de passe</div>
+<div><input id="password" type="password" placeholder="mot de passe" class="submit_on_enter"/></div>
+<br>
+<div><input type="button" value="Se connecter" onclick="uiLoginUser();"/></div>
+
+{% else %}
+<h1>Login</h1>
+<div>Username</div>
+<div><input id="username" type="text" placeholder="username" class="submit_on_enter"/></div>
+<div>Password</div>
+<div><input id="password" type="password" placeholder="password" class="submit_on_enter"/></div>
+<br>
+<div><input type="button" value="Login" onclick="uiLoginUser();"/></div>
+{% endif %}
+
+{% endblock %}
+
+

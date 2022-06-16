@@ -1,0 +1,18 @@
+{% extends '_master.html' %}
+
+{% block nrcanheadercontent %}
+
+{% if lang == 'fr' %}
+<h2>Vos informations d'authentification sont manquantes, invalides, revoquées ou échues.</h2>
+<p>
+    <a href="/fr/login?redirect_uri={{ request.args.get('redirect_uri') }}">Se reconnecter</a>
+</p>
+{% else %}
+<h2>Your credentials are either missing, invalid, revoked or have become expired.</h2>
+<p>
+    <a href="/en/login?redirect_uri={{ request.args.get('redirect_uri') }}">Log back in</a>
+</p>
+{% endif %}
+{% endblock %}
+
+
