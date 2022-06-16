@@ -115,3 +115,9 @@ ENV/
 
 .DS_Store
 /.github
+/B3. DOWNLOAD-WEB.txt
+/A1. BUILD-API.bat
+/A2. UPLOAD-API.bat
+/A3. DOWNLOAD-API.txt
+/B1. BUILD-WEB.bat
+/B2. UPLOAD-WEB.bat
