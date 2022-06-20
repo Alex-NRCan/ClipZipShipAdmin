@@ -247,8 +247,30 @@ paths:
           $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/ServerError
       tags:
       - Admin
-    
-    
+  
+  /extent/{table_name}:
+    get:
+      summary: Get the extent of the given table name
+      description: Queries the bounding box extent for the given table name.
+      operationId: routes.rt_api.get_extent
+      parameters:
+      - name: table_name
+        in: path
+        description: The table name for which to retrieve the bounding box extent
+        required: true
+        schema:
+          type: string
+          example: "Metal mines"
+      responses:
+        '200':
+          $ref: '#/components/responses/Extent'
+        '400':
+          $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/InvalidParameter
+        '500':
+          $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/ServerError
+      tags:
+      - Admin
+
 components:
 
   securitySchemes:
@@ -439,6 +461,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/MetadataResponse'
+    Extent:
+      description: Extent bounding box information
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ExtentResponse'
     Parents:
       description: Parents information
       content:
@@ -681,6 +709,9 @@ components:
           type: array
           items:
             type: object
+
+    ExtentResponse:
+      type: string
 
     ParentsResponse:
       type: array

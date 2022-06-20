@@ -74,6 +74,15 @@ main.container .container.headline p {
     width: 100%;
 }
 
+.czs .cell-value-feature-input.table-name {
+  width: 80%;
+}
+
+.czs .load-extent {
+  float: right;
+  width: 16%;
+}
+
 .czs-wrapper-table {
     width: 100%;
 }

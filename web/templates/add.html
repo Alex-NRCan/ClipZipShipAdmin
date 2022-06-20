@@ -6,7 +6,7 @@
     $(document).ready(function() {
         $(".submit_on_enter").keydown(function(e) {
             if (e.keyCode==13) {
-                uiQueryQuality();
+                uiQueryMetadata();
                 return false;
             }
         });
@@ -26,7 +26,8 @@
         $("#cogs_section").addClass("hidden");
         $("#feature_section").addClass("hidden");
 
-        var res = queryMetadata($("#metadata_uuid").val(), function (res) {
+        // Query
+        queryMetadata($("#metadata_uuid").val(), function (res) {
             console.log(res);
 
             // Clear
@@ -60,7 +61,7 @@
 
             // Add row for the feature
             addRowFeature(((lang == "fr") ? "Nom de la collection:" : "Name of the collection:"), "name");
-            addRowFeature(((lang == "fr") ? "Nom de la table:" : "Name of the table:"), "table-name");
+            addRowFeatureNameOfTable(((lang == "fr") ? "Nom de la table:" : "Name of the table:"), "table-name", ((lang == "fr") ? "Charger l'étendu" : "Load extent"));
             addRowFeature(((lang == "fr") ? "Nom du champ de l'identifiant:" : "Data id field:"), "data-id-field");
             addRowFeature(((lang == "fr") ? "Champs requêtables:" : "Data queryables:"), "data-queryables");
 
@@ -90,6 +91,8 @@
                 // Feature by default
                 $('#feature_section').removeClass("hidden");
             }
+        }, function (err) {
+            _defaultFailedCallback(err);
         });
     }
 
@@ -104,6 +107,14 @@
             $('#cogs_section').removeClass("hidden");
             $('#feature_section').addClass("hidden");
         }
+    }
+
+    function onLoadExtent() {
+        // Query
+        queryExtent($(".cell-value-feature-input.table-name").val(), function (res) {
+            res = res.replace("BOX(", "").replace(")", "");
+            $(".cell-value-input.extent").val(res);
+        });
     }
 
     function getFormatName() {
@@ -188,6 +199,32 @@
         $(td).html(inpt);
     }
 
+    function addRowFeatureNameOfTable(label_name, className, button_label) {
+        // Add row
+        var tr = document.createElement("tr");
+        $('#result_table_feature tbody').append(tr);
+
+        // Add cell
+        var td = document.createElement("td");
+        $(tr).append(td);
+        var span = document.createElement("span");
+        $(span).text(label_name);
+        $(td).append(span);
+
+        td = document.createElement("td");
+        $(tr).append(td);
+        var inpt = document.createElement("input");
+        inpt.className = "cell-value-feature-input " + className;
+        $(td).append(inpt);
+        
+        var inpt = document.createElement("input");
+        inpt.className = "load-extent";
+        $(inpt).attr("type", "button");
+        $(inpt).attr("value", button_label)
+        $(inpt).attr("onclick", "onLoadExtent(event)");
+        $(td).append(inpt);
+    }
+
     function uiAddCollection() {
         // Build the payload
         var payload ={};
@@ -242,10 +279,11 @@
                         payload.name = cogItem.name;
                         payload.cov_data = cogItem.cov_data;
 
+                        // Call add collection service
                         addCollection(payload, function(res) {
                             alert("Collection(s) added.");
                         }, function(err) {
-                            alert(err);
+                            _defaultFailedCallback(err);
                         });
                     });
                 }
@@ -268,10 +306,11 @@
             var dq = $(".cell-value-feature-input.data-queryables").val();
             payload.table_queryables = dq.split(",").map((itm) => { return itm.trim(); });
 
+            // Call add collection service
             addCollection(payload, function(res) {
                 alert("Collection added.");
             }, function(err) {
-                alert(err);
+                _defaultFailedCallback(err);
             });
         }
     }

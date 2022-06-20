@@ -200,6 +200,26 @@ def get_parents():
         rt_core.abort_error(err)
 
 
+@routes.route('/api/extent/<table_name>', methods=["GET"])
+#@rt_core.validate_user_level(config.ROLE_LEVEL_ADMIN)
+def get_extent(table_name: str):
+    """
+    Handles a GET request on end point "/api/extent/<table_name>" to return the Parents information.
+    """
+
+    try:
+        # Redirect
+        return clip_zip_ship.get_extent(table_name, 4326)
+
+    except UserMessageException as err:
+        # Handle the error for the User
+        rt_core.abort_user_message(err)
+
+    except Exception as err:
+        # Raise a generic error
+        rt_core.abort_error(err)
+
+
 @routes.route('/api/users', methods=["GET"])
 @rt_core.validate_user_level(config.ROLE_LEVEL_ADMIN)
 def get_users():

@@ -72,6 +72,11 @@ function queryMetadata(uuid, successCallback, failedCallback) {
         successCallback, failedCallback);
 }
 
+function queryExtent(table_name, successCallback, failedCallback) {
+    callAPI("GET", "/extent/" + table_name, null,
+        successCallback, failedCallback);
+}
+
 function addCollection(payload, successCallback, failedCallback) {
      callAPI("PUT", "/collections", payload,
         successCallback, failedCallback);   

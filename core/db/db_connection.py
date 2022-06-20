@@ -41,6 +41,17 @@ class DBConnection(object):
         return psycopg2.connect(host=self.host, dbname=self.dbname, user=self.user, password=self.password)
 
 
+    def open_conn_features(self):
+        """
+        Connects to the database.
+
+        :returns: A :class:`~psycopg2` connection
+        """
+
+        # Connects and returns the connection
+        return psycopg2.connect(host=config.DB_HOST, dbname=config.DB_NAME_FEATURES, user=config.DB_USER, password=config.DB_PASS)
+
+
     def query_users(self):
         """
         Queries for all the Users in the system.
@@ -299,6 +310,31 @@ class DBConnection(object):
                 # Execute cursor and fetch
                 cur.execute(query)
                 return cur.fetchall()
+
+
+    def get_table_extent(self, table_name: str, out_crs: int):
+        """
+        Queries for a table extent.
+
+        :returns: The bounding box extent of the table.
+        """
+
+        # Connect to the database
+        with self.open_conn_features() as conn:
+            # Open a cursor
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                str_query = """SELECT ST_Extent(ST_Transform(ST_SetSRID(BOX2d(ST_EstimatedExtent({schema}, {table_parent}, {geom}))::geometry, Find_SRID({schema}, {table_parent}, {geom})), {out_crs}))"""
+
+                # Query in the database
+                query = sql.SQL(str_query).format(
+                    schema=sql.Literal(config.DB_SCHEMA_FEATURES),
+                    table_parent=sql.Literal(table_name),
+                    geom=sql.Literal("geom"),
+                    out_crs=sql.Literal(out_crs))
+
+                # Execute cursor and fetch
+                cur.execute(query)
+                return cur.fetchone()["st_extent"]
 
 
     def add_collection_feature(self, parent_uuid: str, metadata_uuid: str, coll_name: str, coll_title_en: str, coll_title_fr: str, coll_desc_en: str, coll_desc_fr: str,
