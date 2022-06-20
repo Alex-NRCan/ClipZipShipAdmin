@@ -1,1 +1,1 @@
-# This folder contains the Contributors Web App.
+# This folder contains the Clip Zip Ship Admin Web App.

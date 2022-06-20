@@ -5,8 +5,12 @@ End points:
  - /api/login (login) enables JWT authentication using username/password
  - /api/refresh (refresh) enables JWT re-authentication using a refresh token
  - /api/logout (logout) logs out the current User
- - /api/collections/{collection} returns collection information
- - /api/user Creates (POST) or Deletes (DELETE) a User in the database
+ - /api/collections Adds (PUT) a Collection
+ - /api/collections/{collection} Deletes (DELETE) a Collection
+ - /api/user Creates (POST) a User in the database
+ - /api/user/{user} Updates (PATCH) or Deletes (DELETE) a User in the database
+ - /api/metadata/<uuid> Gets metadata information from the FGP CSW Catalog in a Json format
+ - /api/parents Gets the available Parents, grouped by Themes, for the Collections
 """
 
 # 3rd party imports
