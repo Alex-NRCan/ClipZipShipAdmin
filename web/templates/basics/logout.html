@@ -11,11 +11,9 @@
 {% endblock %}
 
 {% block nrcanheadercontent %}
-{% if lang == 'fr' %}
-<h2>Déconnexion en cours, veuillez patienter...</h2>
-{% else %}
-<h2>Logging out, please wait...</h2>
-{% endif %}
+
+<h2>{{ _('LOGOUT_TITLE') }}</h2>
+
 {% endblock %}
 
 

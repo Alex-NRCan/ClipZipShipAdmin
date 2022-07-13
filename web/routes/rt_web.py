@@ -2,7 +2,7 @@
 This module, implementing OpenAPI concepts, manages the various routes for the web interface.
 
 End points:
- - / or /en/home or /fr/accueil : endpoing to home page in correct language
+ - / or /en/home or /fr/home : endpoing to home page in correct language
  - /en/login or /fr/login : endpoint to a page to login with the API
  - /en/logout or /fr/logout : endpoint to a page to logout with the API
  - /en/query or /fr/query : endpoint to a page to query a quality metadata uuid
@@ -13,56 +13,41 @@ End points:
 """
 
 # 3rd party imports
-from flask import request
+from flask import request, session
 
 # Application imports
-from core import config, auth
+from core import config, auth, clip_zip_ship
 from core.lib.exceptions import *
 from . import routes
 import core.routes.rt_core as rt_core
 
 
 @routes.route('/')
-@routes.route('/en/home')
-def html_index():
+@routes.route('/<any(en,fr):lang>/home')
+def html_index(lang = "en"):
     """
-    Handles a GET request on "/" end point to load an HTML page for the Home page.
+    Handles a GET request on "/" or "/<lang>/home" end point to load an HTML page for the Home page.
     """
 
     try:
-        return rt_core.render_page('home.html', '/fr/accueil')
+        return rt_core.render_page('home.html')
 
     except Exception as err:
         # Weird, just proceed
         print(err)
-        return rt_core.render_page('home.html', '/fr/accueil')
+        return rt_core.render_page('home.html')
 
 
-@routes.route('/fr/accueil')
-def html_index_fr():
+@routes.route('/<any(en,fr):lang>/login', methods=["GET"])
+def html_login(lang):
     """
-    Handles a GET request on "/" end point to load an HTML page for the Home page.
-    """
-
-    try:
-        return rt_core.render_page('home.html', '/en/home')
-
-    except Exception as err:
-        # Weird, just proceed
-        print(err)
-        return rt_core.render_page('home.html', '/en/home')
-
-
-@routes.route('/en/login', methods=["GET"])
-def html_login():
-    """
-    Handles a GET request on "/login" end point to load an HTML page with login capabilities for a User.
+    Handles a GET request on "/<lang>/login" end point to load an HTML page with login capabilities for a User.
     """
 
     try:
         # If not already logged in
         if not auth.current_user():
-            return rt_core.render_page('login.html', '/fr/login')
+            return rt_core.render_page('login.html')
 
         else:
             # Already logged in
@@ -71,28 +56,91 @@ def html_login():
     except Exception as err:
         # Weird, just proceed
         print(err)
-        return rt_core.render_page('login.html', '/fr/login')
+        return rt_core.render_page('login.html')
 
 
-@routes.route('/fr/login', methods=["GET"])
-def html_login_fr():
+@routes.route('/<any(en,fr):lang>/add')
+@rt_core.validate_user_html_level(config.ROLE_LEVEL_USER)
+def html_upload_quality(lang):
     """
-    Handles a GET request on "/fr/login" end point to load an HTML page with login capabilities for a User.
+    Handles a GET request on "/<lang>/add" end point to show a page with uploading
+     Metadata Quality Information capabilities.
     """
 
     try:
-        # If not already logged in
-        if not auth.current_user():
-            return rt_core.render_page('login.html', '/en/login')
-
-        else:
-            # Already logged in
-            return rt_core.redirect_home()
+        return rt_core.render_page('add.html', parents=clip_zip_ship.get_parents())
 
     except Exception as err:
         # Weird, just proceed
         print(err)
-        return rt_core.render_page('login.html', '/en/login')
+        return rt_core.redirect_home()
+
+
+@routes.route('/<any(en,fr):lang>/logout')
+@rt_core.validate_user_html_level(config.ROLE_LEVEL_USER)
+def html_logout(lang):
+    """
+    Handles a GET request on "/<lang>/logout" end point to load an HTML page indicating the User is being logged out.
+    """
+
+    try:
+        # Logout the User
+        auth.logout()
+
+        # Render logout page
+        return rt_core.render_page('basics/logout.html')
+
+    except Exception as err:
+        # Weird, just proceed
+        print(err)
+        return rt_core.redirect_home()
+
+
+@routes.route('/<any(en,fr):lang>/expired')
+def html_expired(lang):
+    """
+    Handles a GET request on "/<lang>/expired" end point to load an HTML page indicating the User token has expired or
+     is invalid.
+    """
+
+    try:
+        return rt_core.render_page('basics/expired.html')
+
+    except Exception as err:
+        # Weird, just proceed
+        print(err)
+        return rt_core.redirect_home()
+
+
+@routes.route('/<any(en,fr):lang>/denied')
+def html_denied(lang):
+    """
+    Handles a GET request on "/<lang>/denied" end point to load an HTML page indicating the User token has
+     insufficient permissions.
+    """
+
+    try:
+        return rt_core.render_page('basics/denied.html')
+
+    except Exception as err:
+        # Weird, just proceed
+        print(err)
+        return rt_core.redirect_home()
+
+
+@routes.route('/<any(en,fr):lang>/not_found')
+def html_not_found(lang):
+    """
+    Handles a GET request on "/<lang>/not_found" end point to load an HTML page indicating the Page couldn't be found.
+    """
+
+    try:
+        return rt_core.render_page('basics/not_found.html')
+
+    except Exception as err:
+        # Weird, just proceed
+        print(err)
+        return rt_core.redirect_home()
 
 
 @routes.route('/login', methods=["POST"])
@@ -120,42 +168,6 @@ def html_login_post():
         rt_core.abort_error(err)
 
 
-@routes.route('/en/add')
-#@rt_core.validate_user_html_level(config.ROLE_LEVEL_USER)
-def html_upload_quality():
-    """
-    Handles a GET request on "/upload" end point to show a page with uploading
-     Metadata Quality Information capabilities.
-    """
-
-    try:
-        return rt_core.render_page('add.html', '/fr/add')
-
-    except Exception as err:
-        # Weird, just proceed
-        print("html_upload_quality")
-        print(err)
-        return rt_core.redirect_home()
-
-
-@routes.route('/fr/add')
-#@rt_core.validate_user_html_level(config.ROLE_LEVEL_USER)
-def html_upload_quality_fr():
-    """
-    Handles a GET request on "/upload" end point to show a page with uploading
-     Metadata Quality Information capabilities.
-    """
-
-    try:
-        return rt_core.render_page('add.html', '/en/add')
-
-    except Exception as err:
-        # Weird, just proceed
-        print("html_upload_quality_fr")
-        print(err)
-        return rt_core.redirect_home()
-
-
 @routes.route('/profile')
 @rt_core.validate_user_html_level(config.ROLE_LEVEL_USER)
 def html_my_profile():
@@ -164,7 +176,7 @@ def html_my_profile():
     """
 
     try:
-        return rt_core.render_page('my_profile.html', '/profile')
+        return rt_core.render_page('my_profile.html')
 
     except Exception as err:
         # Weird, just proceed
@@ -173,135 +185,3 @@ def html_my_profile():
         return rt_core.redirect_home()
 
 
-@routes.route('/en/logout')
-@rt_core.validate_user_html_level(config.ROLE_LEVEL_USER)
-def html_logout():
-    """
-    Handles a GET request on "/logout" end point to load an HTML page indicating the User is being logged out.
-    """
-
-    try:
-        # Logout the User
-        auth.logout()
-
-        # Render logout page
-        return rt_core.render_page('basics/logout.html', '/fr/logout')
-
-    except Exception as err:
-        # Weird, just proceed
-        print(err)
-        return rt_core.redirect_home()
-
-
-@routes.route('/fr/logout')
-@rt_core.validate_user_html_level(config.ROLE_LEVEL_USER)
-def html_logout_fr():
-    """
-    Handles a GET request on "/fr/logout" end point to load an HTML page indicating the User is being logged out.
-    """
-
-    try:
-        # Logout the User
-        auth.logout()
-
-        # Render logout page
-        return rt_core.render_page('basics/logout.html', '/en/logout')
-
-    except Exception as err:
-        # Weird, just proceed
-        print(err)
-        return rt_core.redirect_home()
-
-
-@routes.route('/en/expired')
-def html_expired():
-    """
-    Handles a GET request on "/expired" end point to load an HTML page indicating the User token has expired or
-     is invalid.
-    """
-
-    try:
-        return rt_core.render_page('basics/expired.html', '/fr/expired')
-
-    except Exception as err:
-        # Weird, just proceed
-        print(err)
-        return rt_core.redirect_home()
-
-
-@routes.route('/fr/expired')
-def html_expired_fr():
-    """
-    Handles a GET request on "/fr/expired" end point to load an HTML page indicating the User token has expired or
-     is invalid.
-    """
-
-    try:
-        return rt_core.render_page('basics/expired.html', '/en/expired')
-
-    except Exception as err:
-        # Weird, just proceed
-        print(err)
-        return rt_core.redirect_home()
-
-
-@routes.route('/en/denied')
-def html_denied():
-    """
-    Handles a GET request on "/denied" end point to load an HTML page indicating the User token has
-     insufficient permissions.
-    """
-
-    try:
-        return rt_core.render_page('basics/denied.html', '/fr/denied')
-
-    except Exception as err:
-        # Weird, just proceed
-        print(err)
-        return rt_core.redirect_home()
-
-
-@routes.route('/fr/denied')
-def html_denied_fr():
-    """
-    Handles a GET request on "/fr/denied" end point to load an HTML page indicating the User token has
-     insufficient permissions.
-    """
-
-    try:
-        return rt_core.render_page('basics/denied.html', '/en/denied')
-
-    except Exception as err:
-        # Weird, just proceed
-        print(err)
-        return rt_core.redirect_home()
-
-
-@routes.route('/en/not_found')
-def html_not_found():
-    """
-    Handles a GET request on "/not_found" end point to load an HTML page indicating the Page couldn't be found.
-    """
-
-    try:
-        return rt_core.render_page('basics/not_found.html', '/fr/not_found')
-
-    except Exception as err:
-        # Weird, just proceed
-        print(err)
-        return rt_core.redirect_home()
-
-
-@routes.route('/fr/not_found')
-def html_not_found_fr():
-    """
-    Handles a GET request on "/not_found" end point to load an HTML page indicating the Page couldn't be found.
-    """
-
-    try:
-        return rt_core.render_page('basics/not_found.html', '/en/not_found')
-
-    except Exception as err:
-        # Weird, just proceed
-        print(err)
-        return rt_core.redirect_home()

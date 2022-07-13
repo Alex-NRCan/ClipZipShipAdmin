@@ -121,3 +121,7 @@ ENV/
 /A3. DOWNLOAD-API.txt
 /B1. BUILD-WEB.bat
 /B2. UPLOAD-WEB.bat
+/docs/build_api
+/docs/build_web
+/docs/source_api
+/docs/source_web

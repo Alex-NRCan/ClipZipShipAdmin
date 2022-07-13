@@ -1,16 +1,10 @@
 {% extends '_master.html' %}
 
 {% block nrcanheadercontent %}
-{% if lang == 'fr' %}
-<h2>Défendu. Privilèges insuffisants.</h2>
+
+<h2>{{ _('DENIED_TITLE') }}</h2>
 <p>
-    <a href="/fr/logout">Se connecter sur un autre compte</a>
+    <a href="/{{ lang }}/logout">{{ _('DENIED_BUTTON') }}</a>
 </p>
 
-{% else %}
-<h2>Denied. Not enough privileges.</h2>
-<p>
-    <a href="/en/logout">Logout to login again</a>
-</p>
-{% endif %}
 {% endblock %}

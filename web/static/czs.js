@@ -72,9 +72,20 @@ function queryMetadata(uuid, successCallback, failedCallback) {
         successCallback, failedCallback);
 }
 
-function queryExtent(table_name, successCallback, failedCallback) {
-    callAPI("GET", "/extent/" + table_name, null,
-        successCallback, failedCallback);
+function queryExtent(schema, table_name, crs, data_host, data_port, data_name, data_user, data_password, successCallback, failedCallback) {
+    callAPI("POST", "/extent/" + schema + "/" + table_name + "/" + crs, {
+        db_host: data_host,
+        db_port: data_port,
+        db_name: data_name,
+        db_user: data_user,
+        db_password: data_password
+    },
+    successCallback, failedCallback);
+}
+
+function addParent(payload, successCallback, failedCallback) {
+     callAPI("PUT", "/parents", payload,
+        successCallback, failedCallback);   
 }
 
 function addCollection(payload, successCallback, failedCallback) {
@@ -87,13 +98,29 @@ function addCollection(payload, successCallback, failedCallback) {
 
 function redirectHome(lang) {
     if (lang == "fr")
-        window.location.replace("/fr/accueil");
+        window.location.replace("/fr/home");
     else
         window.location.replace("/en/home");
 }
 
 function _defaultSuccessCallback(res) {
     alert("Success!");
+}
+
+function _readErrorMessage(err, lang) {
+    // If handling it
+    if (err.responseJSON) {
+        var msg = err.responseJSON.detail;
+
+        // If French language
+        if (lang == "fr" && err.responseJSON.detail_fr)
+            msg = err.responseJSON.detail_fr;
+        return msg;
+    }
+
+    else {
+        return "Failed...";
+    }
 }
 
 function _defaultFailedCallback(err) {

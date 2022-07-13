@@ -6,7 +6,7 @@ This module offers utility functions shared across the application to handle the
 from functools import wraps
 
 # 3rd party imports
-from flask import request, jsonify, abort, redirect, make_response, render_template
+from flask import request, jsonify, abort, redirect, make_response, render_template, session
 
 # Application modules
 from core import config, auth
@@ -83,6 +83,16 @@ def validate_user_html_level(role_level):
         return decorator
 
     return wrapper
+
+
+def response_201(body):
+    """
+    Returns the given body on a 201 response.
+
+    :returns: The given body on a 201 response.
+    """
+
+    return make_response(body, 201)
 
 
 def response_204():
@@ -225,11 +235,31 @@ def redirect_not_found():
     return redirect("/" + get_lang_from_url() + "/not_found", code=302)
 
 
-def render_page(url, alt_url, **kwargs):
+def render_page(url, **kwargs):
+    """
+    Renders a web page with the expected common parameters for the user interface, including: user, roles, language.
+    This function reads the given url to determine the which language the page should be displayed.
+    """
+
+    # Set language for Babel
+    session['language'] = get_lang_from_url()
+
+    alt_url = request.path
+    if session['language'] == "fr":
+        alt_url = alt_url.replace("/fr/", "/en/")
+    
+    else:
+        alt_url = alt_url.replace("/en/", "/fr/")
+
+    # If the english root hoom
+    if not alt_url or alt_url == "/":
+        alt_url = "/fr/home"
+
+    # Proceed    
     return render_template(url,
                            user=auth.current_user(),
                            roles=config.ROLES,
-                           lang=get_lang_from_url(),
+                           lang=session['language'],
                            alt_url=alt_url,
                            using_connexion=config.USING_CONNEXION_API,
                            **kwargs)

@@ -41,17 +41,6 @@ class DBConnection(object):
         return psycopg2.connect(host=self.host, dbname=self.dbname, user=self.user, password=self.password)
 
 
-    def open_conn_features(self):
-        """
-        Connects to the database.
-
-        :returns: A :class:`~psycopg2` connection
-        """
-
-        # Connects and returns the connection
-        return psycopg2.connect(host=config.DB_HOST, dbname=config.DB_NAME_FEATURES, user=config.DB_USER, password=config.DB_PASS)
-
-
     def query_users(self):
         """
         Queries for all the Users in the system.
@@ -312,7 +301,7 @@ class DBConnection(object):
                 return cur.fetchall()
 
 
-    def get_table_extent(self, table_name: str, out_crs: int):
+    def get_table_extent(self, schema: str, table_name: str, out_crs: int, db_host: str, db_port: int, db_name: str, db_user: str, db_password: str):
         """
         Queries for a table extent.
 
@@ -320,30 +309,31 @@ class DBConnection(object):
         """
 
         # Connect to the database
-        with self.open_conn_features() as conn:
+        with psycopg2.connect(host=db_host, port=db_port, dbname=db_name, user=db_user, password=db_password) as conn:
             # Open a cursor
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-                str_query = """SELECT ST_Extent(ST_Transform(ST_SetSRID(BOX2d(ST_EstimatedExtent({schema}, {table_parent}, {geom}))::geometry, Find_SRID({schema}, {table_parent}, {geom})), {out_crs}))"""
+                str_query = """SELECT ST_Extent(ST_Transform(ST_SetSRID(BOX2d(ST_EstimatedExtent({schema}, {table_name}, {geom}))::geometry, Find_SRID({schema}, {table_name}, {geom})), {out_crs}))"""
 
                 # Query in the database
                 query = sql.SQL(str_query).format(
-                    schema=sql.Literal(config.DB_SCHEMA_FEATURES),
-                    table_parent=sql.Literal(table_name),
+                    schema=sql.Literal(schema),
+                    table_name=sql.Literal(table_name),
                     geom=sql.Literal("geom"),
                     out_crs=sql.Literal(out_crs))
 
                 # Execute cursor and fetch
                 cur.execute(query)
-                return cur.fetchone()["st_extent"]
+                res = cur.fetchone()["st_extent"]
+                return res
 
 
     def add_collection_feature(self, parent_uuid: str, metadata_uuid: str, coll_name: str, coll_title_en: str, coll_title_fr: str, coll_desc_en: str, coll_desc_fr: str,
                                keywords_en: list, keywords_fr: list, coll_crs: int, provider_type: str, provider_name: str,
-                               extent_bbox: list, extent_crs: str, extent_temporal_begin: object, extent_temporal_end: object, geom_wkt: str, geom_crs: int,
+                               extent_bbox: list, extent_crs: str, extent_temporal_begin: object, extent_temporal_end: object,
                                link_type: str, link_rel: str, link_title: str, link_href: str, link_hreflang: str,
-                               tablename: str, data_id_field: str, data_queryables: str, db_host: str, db_name: str, db_user: str, db_password: str, db_search_path: list):
+                               tablename: str, data_id_field: str, data_queryables: str, db_host: str, db_port: int, db_name: str, db_user: str, db_password: str, db_search_path: list):
         """
-        Adds a feature collection to the database.
+        Adds a feature Collection to the database.
         """
 
         # Connect to the database
@@ -353,15 +343,15 @@ class DBConnection(object):
                 # Call the stored procedure
                 cur.execute("CALL " + config.DB_STORED_PROCS["ADD_COLLECTION_FEATURE"] + "(%s, %s, %s, %s, %s, %s, \
                               %s, %s, %s, %s, %s, \
-                              %s, %s, %s, %s, %s, %s, %s, \
                               %s, %s, %s, %s, %s, \
-                              %s, %s, %s, %s, %s, %s, %s, %s);",
+                              %s, %s, %s, %s, %s, \
+                              %s, %s, %s, %s, %s, %s, %s, %s, %s);",
                               (
                                 parent_uuid, metadata_uuid, coll_name, coll_title_en, coll_title_fr, coll_desc_en,
                                 coll_desc_fr, keywords_en, keywords_fr, coll_crs, provider_type,
-                                provider_name, extent_bbox, extent_crs, extent_temporal_begin, extent_temporal_end, geom_wkt, geom_crs,
+                                provider_name, extent_bbox, extent_crs, extent_temporal_begin, extent_temporal_end,
                                 link_type, link_rel, link_title, link_href, link_hreflang,
-                                tablename, data_id_field, data_queryables, db_host, db_name, db_user, db_password, db_search_path,
+                                tablename, data_id_field, data_queryables, db_host, db_port, db_name, db_user, db_password, db_search_path,
                               )
                             )
 
@@ -375,7 +365,7 @@ class DBConnection(object):
                                link_type: str, link_rel: str, link_title: str, link_href: str, link_hreflang: str,
                                cov_data: str, format_name: str, format_mimetype: str):
         """
-        Adds a coverage collection to the database.
+        Adds a coverage Collection to the database.
         """
 
         # Connect to the database
@@ -401,9 +391,33 @@ class DBConnection(object):
             return True
 
 
+    def update_collection_geom(self, coll_name: str):
+        """
+        Updates the geometry in the collection.
+        """
+
+        # Connect to the database
+        with self.open_conn() as conn:
+            # Open a cursor
+            result = [0]
+            with conn.cursor() as cur:
+                # Call the stored procedure
+                cur.execute("CALL " + config.DB_STORED_PROCS["UPDATE_COLLECTION"] + "(%s, %s);", 
+                              (
+                                coll_name, 0,
+                              )
+                            )
+
+                # Read result
+                result = cur.fetchone()
+
+            conn.commit()
+            return result[0] >= 1
+
+
     def delete_collection(self, coll_name: str):
         """
-        Deletes a collection to the database.
+        Deletes a Collection to the database.
         """
 
         # Connect to the database
@@ -424,3 +438,53 @@ class DBConnection(object):
             conn.commit()
             return result[0] >= 1
 
+
+    def add_parent(self, theme_uuid: str, title_en: str, title_fr: str):
+        """
+        Adds a Parent to the database.
+
+        :returns: The UUID of the Parent that was added
+        """
+
+        # Connect to the database
+        with self.open_conn() as conn:
+            # Open a cursor
+            with conn.cursor() as cur:
+                # Call the stored procedure
+                cur.execute("CALL " + config.DB_STORED_PROCS["ADD_PARENT"] + "(%s, %s, %s, %s);",
+                              (
+                                theme_uuid, title_en, title_fr, None
+                              )
+                            )
+
+                # Read result
+                result = cur.fetchone()
+
+            conn.commit()
+            return result[0]
+
+
+    def delete_parent(self, parent_uuid: str):
+        """
+        Deletes a Parent to the database.
+        """
+
+        # Connect to the database
+        with self.open_conn() as conn:
+            # Open a cursor
+            result = [0]
+            with conn.cursor() as cur:
+                # Call the stored procedure
+                cur.execute("CALL " + config.DB_STORED_PROCS["DELETE_PARENT"] + "(%s, %s);", 
+                              (
+                                parent_uuid, 0,
+                              )
+                            )
+
+                # Read result
+                result = cur.fetchone()
+
+            conn.commit()
+            return result[0] >= 1
+
+    

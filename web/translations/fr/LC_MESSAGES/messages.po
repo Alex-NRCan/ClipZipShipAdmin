@@ -1,0 +1,268 @@
+# French translations for PROJECT.
+# Copyright (C) 2022 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2022-07-12 13:57-0400\n"
+"PO-Revision-Date: 2022-06-22 17:00-0400\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.3\n"
+
+#: templates/_master.html:107
+msgid "MAIN_HOME"
+msgstr "Accueil"
+
+#: templates/_master.html:108
+msgid "MAIN_ADD"
+msgstr "Ajouter"
+
+#: templates/_master.html:120
+msgid "MAIN_MY_PROFILE"
+msgstr "Mon profil"
+
+#: templates/_master.html:121
+msgid "MAIN_LOG_OUT"
+msgstr "Déconnexion"
+
+#: templates/_master.html:129
+msgid "MAIN_LOG_IN"
+msgstr "Connexion"
+
+#: templates/add.html:21
+msgid "ADD_MSG_QUERYING_WAIT"
+msgstr "Requête en cours, patientez svp..."
+
+#: templates/add.html:40 templates/add.html:494
+msgid "ADD_TITLE_ENGLISH"
+msgstr "Titre anglais"
+
+#: templates/add.html:41 templates/add.html:498
+msgid "ADD_TITLE_FRENCH"
+msgstr "Titre français"
+
+#: templates/add.html:43
+msgid "ADD_DESCRIPTION_ENGLISH"
+msgstr "Description anglaise"
+
+#: templates/add.html:44
+msgid "ADD_DESCRIPTION_FRENCH"
+msgstr "Description française"
+
+#: templates/add.html:47
+msgid "ADD_KEYWORDS_ENGLISH"
+msgstr "Mots-clés anglais"
+
+#: templates/add.html:48
+msgid "ADD_KEYWORDS_FRENCH"
+msgstr "Mots-clés français"
+
+#: templates/add.html:51
+msgid "ADD_SPATIAL_REF_DATA"
+msgstr "Référence spatiale des données"
+
+#: templates/add.html:54
+msgid "ADD_EXTENT_IN_CRS84"
+msgstr "Étendu en CRS84"
+
+#: templates/add.html:57
+msgid "ADD_TEMPORAL_EXTENT_BEGIN"
+msgstr "Étendu temporel début"
+
+#: templates/add.html:58
+msgid "ADD_TEMPORAL_EXTENT_END"
+msgstr "Étendu temporel fin"
+
+#: templates/add.html:61 templates/add.html:93
+msgid "ADD_GEOMETRY_WKT"
+msgstr "Géométrie WKT (en SRID:4617)"
+
+#: templates/add.html:64 templates/add.html:93
+msgid "ADD_NAME_OF_COLLECTION"
+msgstr "Nom de la collection"
+
+#: templates/add.html:65
+msgid "ADD_DATABASE_HOST"
+msgstr "Hôte de la base de données"
+
+#: templates/add.html:66
+msgid "ADD_DATABASE_PORT"
+msgstr "Port de la base de données"
+
+#: templates/add.html:67
+msgid "ADD_DATABASE_NAME"
+msgstr "Nom de la base de données"
+
+#: templates/add.html:68
+msgid "ADD_DATABASE_USERNAME"
+msgstr "Nom d'utilisateur de la base de données"
+
+#: templates/add.html:69
+msgid "ADD_DATABASE_PASSWORD"
+msgstr "Mot de passe de la base de données"
+
+#: templates/add.html:70
+msgid "ADD_NAME_OF_SCHEMA"
+msgstr ""
+"Nom du schéma dans la base de données <i class='note-detail'>case "
+"sensitive</i>"
+
+#: templates/add.html:71
+msgid "ADD_NAME_OF_TABLE"
+msgstr "Nom de la table <i class='note-detail'>case sensitive</i>"
+
+#: templates/add.html:71
+msgid "ADD_LOAD_EXTENT"
+msgstr "Charger l'étendu"
+
+#: templates/add.html:72
+msgid "ADD_NAME_OF_DATA_ID_FIELD"
+msgstr "Nom du champ de l'identifiant"
+
+#: templates/add.html:73
+msgid "ADD_QUERYABLES"
+msgstr "Champs requêtables"
+
+#: templates/add.html:93
+msgid "ADD_NAME"
+msgstr "Nom"
+
+#: templates/add.html:148 templates/add.html:312
+msgid "ADD_MSG_PORT_NOT_A_NUMBER"
+msgstr "Le port de la base de données n'est pas un nombre"
+
+#: templates/add.html:306
+msgid "ADD_MSG_CRS_NOT_A_NUMBER"
+msgstr "La référence spatiale n'est pas un nombre"
+
+#: templates/add.html:374
+msgid "ADD_MSG_COLLECTION(S)_ADDED"
+msgstr "Collection(s) ajoutée(s)"
+
+#: templates/add.html:382
+msgid "ADD_MSG_MAKE_SURE_ALL_UNIQUE"
+msgstr "Assurez-vous que chaque nom de collection soit unique"
+
+#: templates/add.html:387
+msgid "ADD_MSG_NO_COVERAGE_FILES_TO_ADD"
+msgstr "Aucune couverture à ajouter"
+
+#: templates/add.html:407
+msgid "ADD_MSG_COLLECTION_ADDED"
+msgstr "Collection ajoutée"
+
+#: templates/add.html:439
+msgid "ADD_COLLECTION"
+msgstr "Ajouter une collection"
+
+#: templates/add.html:440
+msgid "ADD_COLLECTION_DO"
+msgstr ""
+"Inscrivez l'identifiant UID à utiliser pour le pré-remplissage du "
+"formulaire"
+
+#: templates/add.html:451
+msgid "ADD_PRE_FILL"
+msgstr "Pré-remplir"
+
+#: templates/add.html:467
+msgid "ADD_TYPE_FEATURE"
+msgstr "Vectoriel"
+
+#: templates/add.html:468
+msgid "ADD_TYPE_COVERAGE"
+msgstr "Matriciel"
+
+#: templates/add.html:475
+msgid "ADD_NEW_PARENT"
+msgstr "----!---- Ajouter nouveau parent ----!----"
+
+#: templates/add.html:516
+msgid "ADD_CHECK_ALL"
+msgstr "Cocher tous"
+
+#: templates/add.html:535
+msgid "ADD_ADD"
+msgstr "Ajouter"
+
+#: templates/home.html:15
+msgid "HOME_TITLE"
+msgstr "Clip Zip Ship Admin"
+
+#: templates/home.html:16
+msgid "HOME_SUB_TITLE"
+msgstr ""
+"<p>Améliorer la qualité de vie des Canadiens et Canadiennes en veillant à"
+" ce que nos ressources naturelles abondantes soient exploitées de façon "
+"durable, compétitive et inclusive.</p"
+
+#: templates/home.html:22
+msgid "HOME_MORE"
+msgstr "<h2>Plus d'information</h2>"
+
+#: templates/home.html:25
+msgid "HOME_MORE_CONNEXION"
+msgstr ""
+"Pour en connaître d'avantage sur les possibilités de cet API, visitez "
+"l'<a id=\"swaggerAnchor\">interface utilisateur Swagger</a>."
+
+#: templates/home.html:27
+msgid "HOME_MORE_NO_CONNEXION"
+msgstr ""
+"Charger l'API avec Connexion afin de visualiser l'interface utilisateur "
+"Swagger."
+
+#: templates/login.html:25 templates/login.html:31
+msgid "LOGIN_LOG_IN"
+msgstr "Connexion"
+
+#: templates/login.html:26 templates/login.html:27
+msgid "LOGIN_USERNAME"
+msgstr "Username"
+
+#: templates/login.html:28 templates/login.html:29
+msgid "LOGIN_PASSWORD"
+msgstr "Password"
+
+#: templates/basics/denied.html:5
+msgid "DENIED_TITLE"
+msgstr "Défendu. Privilèges insuffisants."
+
+#: templates/basics/denied.html:7
+msgid "DENIED_BUTTON"
+msgstr "Se connecter sur un autre compte"
+
+#: templates/basics/expired.html:5
+msgid "EXPIRED_TITLE"
+msgstr ""
+"Vos informations d'authentification sont manquantes, invalides, revoquées"
+" ou échues."
+
+#: templates/basics/expired.html:7
+msgid "EXIRED_BUTTON"
+msgstr "Se reconnecter"
+
+#: templates/basics/logout.html:15
+msgid "LOGOUT_TITLE"
+msgstr "Déconnexion en cours, veuillez patienter..."
+
+#: templates/basics/not_found.html:5
+msgid "NOT_FOUND_TITLE"
+msgstr "Page introuvable."
+
+#: templates/basics/not_found.html:7
+msgid "NOT_FOUND_BUTTON"
+msgstr "Retour à l'accueil"
+
+#~ msgid "ADD_GEOMETRY_CRS"
+#~ msgstr "Référence spatiale de la Géométrie WKT"
+

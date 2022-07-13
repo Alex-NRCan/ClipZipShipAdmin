@@ -20,6 +20,7 @@ sys.path.append(os.path.dirname(sys.path[0]))
 from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_wtf.csrf import CSRFProtect
+from flask_babel import Babel, lazy_gettext as gettext, _
 
 # Application imports
 from routes import *
@@ -44,6 +45,11 @@ app.config['JSON_AS_ASCII'] = False
 # Create a Flask JWT Manager
 jwtMan = JWTManager(app)
 
+# Babel
+babel = Babel(app)
+app.config['BABEL_TRANSLATION_DIRECTORIES'] = './translations'
+app.config["BABEL_DEFAULT_LOCALE"] = "en"
+
 # Register the WEB routes blueprint in Flask
 app.register_blueprint(routes)
 
@@ -52,6 +58,11 @@ csrf = CSRFProtect(app)
 
 # Read the parameters
 app.jinja_env.globals["api_url"] = config.API_URL()
+
+
+@babel.localeselector
+def get_locale():
+    return session.get('language', 'en')
 
 
 @jwtMan.unauthorized_loader

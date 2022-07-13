@@ -97,7 +97,7 @@ paths:
       security:
         - BearerAuth: [ ]
       responses:
-        204:
+        201:
           description: Successfully created the User
         401:
           $ref: '#/components/responses/UnauthorizedError'
@@ -118,8 +118,7 @@ paths:
           in: path
           required: true
           schema:
-            type:
-              string
+            type: string
       security:
         - BearerAuth: [ ]
       responses:
@@ -145,8 +144,7 @@ paths:
           in: path
           required: true
           schema:
-            type:
-              string
+            type: string
       security:
         - BearerAuth: [ ]
       responses:
@@ -176,8 +174,8 @@ paths:
       #security:
       #  - BearerAuth: [ ]
       responses:
-        204:
-          description: Successfully created the collection
+        201:
+          description: Successfully created the Collection
         401:
           $ref: '#/components/responses/UnauthorizedError'
         default:
@@ -186,8 +184,42 @@ paths:
       - Collections
     
   /collections/{collection}:
+    patch:
+      summary: Updates a Collection in the database
+      description: The Collection to update.
+      operationId: routes.rt_api.patch_collection
+      parameters:
+        - name: collection
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "coll_name"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionPatch'
+        description: Mandatory execute request JSON
+        required: true
+      #security:
+      #  - BearerAuth: [ ]
+      responses:
+        204:
+          description: Successfully updated the Collection
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/UnauthorizedInvalidScopeError'
+        404:
+          $ref: '#/components/responses/UserNotFound'
+        default:
+          $ref: '#/components/responses/InternalError'
+      tags:
+      - Collections
+
     delete:
-      summary: Delete a Collection
+      summary: Deletes a Collection
       description: Deletes a Collection
       operationId: routes.rt_api.delete_collection
       parameters:
@@ -212,7 +244,7 @@ paths:
 
   /metadata/{uuid}:
     get:
-      summary: Get the FGP metadata for the uuid
+      summary: Gets the FGP metadata for the uuid
       description: Queries the FGP for the metadata.
       operationId: routes.rt_api.get_metadata
       parameters:
@@ -227,9 +259,9 @@ paths:
         '200':
           $ref: '#/components/responses/Metadata'
         '400':
-          $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/InvalidParameter
+          $ref: '#/components/responses/InvalidParameter'
         '500':
-          $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/ServerError
+          $ref: '#/components/responses/ServerError'
       tags:
       - Admin
 
@@ -242,18 +274,73 @@ paths:
         '200':
           $ref: '#/components/responses/Parents'
         '400':
-          $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/InvalidParameter
+          $ref: '#/components/responses/InvalidParameter'
         '500':
-          $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/ServerError
+          $ref: '#/components/responses/ServerError'
       tags:
       - Admin
   
-  /extent/{table_name}:
-    get:
-      summary: Get the extent of the given table name
+    put:
+      summary: Adds a new Parent
+      description: Adds a new Parent
+      operationId: routes.rt_api.put_parent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParentAdd'
+        description: Mandatory execute request JSON
+        required: true
+      #security:
+      #  - BearerAuth: [ ]
+      responses:
+        201:
+          description: Successfully created the Parent
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        default:
+          $ref: '#/components/responses/InternalError'
+      tags:
+      - Admin
+
+  /parents/{uuid}:
+    delete:
+      summary: Deletes a Parent
+      description: Deletes a Parent
+      operationId: routes.rt_api.delete_parent
+      parameters:
+      - name: uuid
+        in: path
+        description: Parent UUID to delete
+        required: true
+        schema:
+          type: string
+          example: "97e4197a-a764-475d-ab67-a2fb920e2300"
+      #security:
+      #  - BearerAuth: [ ]
+      responses:
+        204:
+          description: Successfully deleted the Parent
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        default:
+          $ref: '#/components/responses/InternalError'
+      tags:
+      - Admin
+
+  /extent/{schema}/{table_name}/{out_crs}:
+    post:
+      summary: Gets the extent of the given table name
       description: Queries the bounding box extent for the given table name.
       operationId: routes.rt_api.get_extent
       parameters:
+      - name: schema
+        in: path
+        description: The schema name in which to look for the table
+        required: true
+        schema:
+          type: string
+          example: "nrcan"
       - name: table_name
         in: path
         description: The table name for which to retrieve the bounding box extent
@@ -261,13 +348,27 @@ paths:
         schema:
           type: string
           example: "Metal mines"
+      - name: out_crs
+        in: path
+        description: The expected crs we want the extent coordinates into
+        required: true
+        schema:
+          type: integer
+          example: 4326
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetExtent'
+        description: Mandatory execute request JSON
+        required: true
       responses:
         '200':
           $ref: '#/components/responses/Extent'
         '400':
-          $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/InvalidParameter
+          $ref: '#/components/responses/InvalidParameter'
         '500':
-          $ref: http://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/ogcapi-features-1.yaml#/components/responses/ServerError
+          $ref: '#/components/responses/ServerError'
       tags:
       - Admin
 
@@ -371,6 +472,35 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+    FeatureTableNotFound:
+      description: Table with given name not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InvalidParameter:
+      description: |-
+        A query parameter has an invalid value.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/exception'
+        text/html:
+          schema:
+            type: string
+    NotFound:
+      description: |-
+        The requested URI was not found.
+    ServerError:
+      description: |-
+        A server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/exception'
+        text/html:
+          schema:
+            type: string
     Metadata:
       description: Metadata information
       content:
@@ -423,10 +553,13 @@ components:
         properties:
           theme_uuid:
             type: string
-          theme_en:
-            type: string
-          theme_fr:
-            type: string
+          title:
+            type: object
+            properties:
+              en:
+                type: string
+              fr:
+                type: string
           parents:
             type: array
             items:
@@ -434,10 +567,26 @@ components:
               properties:
                 parent_uuid:
                   type: string
-                parent_en:
-                  type: string
-                parent_fr:
-                  type: string
+                title:
+                  type: object
+                  properties:
+                    en:
+                      type: string
+                    fr:
+                      type: string
+
+    ParentAdd:
+      type: object
+      properties:
+        theme_uuid:
+          type: string
+          example: e7087e59-a57f-432b-81db-065f4d40e797
+        title_en:
+          type: string
+          example: "Title"
+        title_fr:
+          type: string
+          example: "Titre"
 
     CollectionAdd:
       type: object
@@ -505,9 +654,27 @@ components:
         geom_crs:
           type: integer
           example: 4617
+        db_host:
+          type: string
+          example: 10.68.130.179
+        db_port:
+          type: integer
+          example: 5432
+        db_name:
+          type: string
+          example: postgres
+        db_user:
+          type: string
+          example: postgres
+        db_password:
+          type: string
+          example: password
         table_name:
           type: string
-          example: Metal mines
+          example: mines_de_métaux
+        table_schema:
+          type: string
+          example: nrcan
         table_id_field:
           type: string
           example: OBJECTID
@@ -524,6 +691,33 @@ components:
         cov_format_name:
           type: string
           example: GTiff
+    
+    CollectionPatch:
+      type: object
+      properties:
+        geometry:
+          type: boolean
+          example: true
+    
+    GetExtent:
+      type: object
+      properties:
+        db_host:
+          type: string
+          example: 10.68.130.179
+        db_port:
+          type: integer
+          example: 5432
+        db_name:
+          type: string
+          example: postgres
+        db_user:
+          type: string
+          example: postgres
+        db_password:
+          type: string
+          example: password
+
     Language:
       type: object
       properties:
@@ -592,3 +786,14 @@ components:
         type:
           type: string
           description: Error type
+    exception:
+      type: object
+      description: |-
+        Information about the exception: an error code plus an optional description.
+      required:
+        - code
+      properties:
+        code:
+          type: string
+        description:
+          type: string

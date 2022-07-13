@@ -1,17 +1,12 @@
 {% extends '_master.html' %}
 
 {% block nrcanheadercontent %}
-{% if lang == 'fr' %}
-<h2>Page introuvable.</h2>
+
+<h2>{{ _('NOT_FOUND_TITLE') }}</h2>
 <p>
-    <a href="/fr/accueil">Retour à l'accueil</a>
+    <a href="/{{ lang }}/home">{{ _('NOT_FOUND_BUTTON') }}</a>
 </p>
-{% else %}
-<h2>Page couldn't be found.</h2>
-<p>
-    <a href="/en/home">Back home</a>
-</p>
-{% endif %}
+
 {% endblock %}
 
 

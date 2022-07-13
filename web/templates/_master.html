@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
     <title>NRCan PyGeoAPI Admin API</title>
@@ -34,7 +34,6 @@
         <div class="row">
             <!-- Language selection -->
             <section id="wb-lng" class="col-xs-3 col-sm-12 pull-right text-right">
-                <h2 class="wb-inv">Language selection</h2>
                 <ul class="list-inline margin-bottom-none">
                     <li>
                         {% if lang == 'fr' %}
@@ -105,13 +104,8 @@
     <div id="wb-bnr-api" class="container">
         <div class="row">
             <ul class="nav navbar-nav">
-                {% if lang == 'fr' %}
-                <li><a href="/fr/accueil">Accueil</a></li>
-                <li><a href="/fr/add">Ajouter</a></li>
-                {% else %}
-                <li><a href="/en/home">Home</a></li>
-                <li><a href="/en/add">Add</a></li>
-                {% endif %}
+                <li><a href="/{{ lang }}/home">{{ _('MAIN_HOME') }}</a></li>
+                <li><a href="/{{ lang }}/add">{{ _('MAIN_ADD') }}</a></li>
             </ul>
             {% if user %}
             <ul class="nav navbar-nav navbar-right">
@@ -123,13 +117,8 @@
                         <span>{{ user.username }}</span>
                         <span class="glyphicon glyphicon-triangle-bottom"></span>
                         <ul class="dropdown-menu">
-                            {% if lang == 'fr' %}
-                            <li><a href="/profile">Mon profil</a></li>
-                            <li><a href="/fr/logout">Se déconnecter</a></li>
-                            {% else %}
-                            <li><a href="/profile">My Profile</a></li>
-                            <li><a href="/en/logout">Log out</a></li>
-                            {% endif %}
+                            <li><a href="/profile">{{ _('MAIN_MY_PROFILE') }}</a></li>
+                            <li><a href="/{{ lang }}/logout">{{ _('MAIN_LOG_OUT') }}</a></li>
                         </ul>
                     </a>
                 </li>
@@ -137,11 +126,7 @@
 
             {% else %}
             <ul class="nav navbar-nav navbar-right">
-                {% if lang == 'fr' %}
-                <li><a href="/fr/login">Se connecter</a></li>
-                {% else %}
-                <li><a href="/en/login">Log in</a></li>
-                {% endif %}
+                <li><a href="/{{ lang }}/login">{{ _('MAIN_LOG_IN') }}</a></li>
             </ul>
             {% endif %}
         </div>

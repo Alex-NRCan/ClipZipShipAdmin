@@ -18,13 +18,11 @@
     });
 
     function uiQueryMetadata(lang) {
-        var queryingText = "Querying, please wait...";
-        if (lang == "fr")
-            queryingText = "Requête en cours, patientez svp...";
-        $(".loading-message").html(queryingText)
+        $(".loading-message").html("{{ _('ADD_MSG_QUERYING_WAIT') }}")
         $(".result_wrapper_inner").addClass("hidden");
         $("#cogs_section").addClass("hidden");
         $("#feature_section").addClass("hidden");
+        hideAlerts();
 
         // Query
         queryMetadata($("#metadata_uuid").val(), function (res) {
@@ -36,41 +34,50 @@
             $('#result_table tbody').empty();
             $('#result_table_cogs tbody').empty();
             $('#result_table_feature tbody').empty();
-            $("#result_type").val("feature");
+            $("#select_type").val("feature");
 
             // Add title rows
-            addRow(lang, "Title English:", "Titre anglais:", "title_en", res.title_en);
-            addRow(lang, "Title French:", "Titre français:", "title_fr", res.title_fr);
+            addRow("{{ _('ADD_TITLE_ENGLISH') }}", "title_en", res.title_en);
+            addRow("{{ _('ADD_TITLE_FRENCH') }}", "title_fr", res.title_fr);
 
-            addRow(lang, "Description English:", "Description anglaise:", "description_en", "");
-            addRow(lang, "Description French:", "Description française:", "description_fr", "");
+            addRow("{{ _('ADD_DESCRIPTION_ENGLISH') }}", "description_en", "");
+            addRow("{{ _('ADD_DESCRIPTION_FRENCH') }}", "description_fr", "");
 
             // Add keywords rows
-            addRow(lang, "Keywords English:", "Mot-clés anglais:", "keywords_en", res.keywords_en);
-            addRow(lang, "Keywords French:", "Mot-clés français:", "keywords_fr", res.keywords_fr);
+            addRow("{{ _('ADD_KEYWORDS_ENGLISH') }}", "keywords_en", res.keywords_en);
+            addRow("{{ _('ADD_KEYWORDS_FRENCH') }}", "keywords_fr", res.keywords_fr);
 
             // Add spatial reference id
-            addRow(lang, "Spatial Reference:", "Référence spatiale:", "crs", res.srid);
+            addRow("{{ _('ADD_SPATIAL_REF_DATA') }}", "crs", res.srid);
 
             // Extent
-            addRow(lang, "Extent:", "Étendu:", "extent", res.extent.west + "," + res.extent.south + "," + res.extent.east + "," + res.extent.north);
+            addRow("{{ _('ADD_EXTENT_IN_CRS84') }}", "extent", res.extent.west + "," + res.extent.south + "," + res.extent.east + "," + res.extent.north);
 
             // Extent
-            addRow(lang, "Temporal Extent Begin:", "Étendu temporel début:", "temporal_extent_begin", res.temporal_extent["begin"]);
-            addRow(lang, "Temporal Extent End:", "Étendu temporel fin:", "temporal_extent_end", res.temporal_extent["end"]);
+            addRow("{{ _('ADD_TEMPORAL_EXTENT_BEGIN') }}", "temporal_extent_begin", res.temporal_extent["begin"]);
+            addRow("{{ _('ADD_TEMPORAL_EXTENT_END') }}", "temporal_extent_end", res.temporal_extent["end"]);
+
+            
+            //addRow("{{ _('ADD_GEOMETRY_WKT') }}", "geometry_wkt", "POLYGON((-113.43 53.51, -113.43 53.59, -113.22 53.59, -113.22 53.51, -113.43 53.51))");
 
             // Add row for the feature
-            addRowFeature(((lang == "fr") ? "Nom de la collection:" : "Name of the collection:"), "name");
-            addRowFeatureNameOfTable(((lang == "fr") ? "Nom de la table:" : "Name of the table:"), "table-name", ((lang == "fr") ? "Charger l'étendu" : "Load extent"));
-            addRowFeature(((lang == "fr") ? "Nom du champ de l'identifiant:" : "Data id field:"), "data-id-field");
-            addRowFeature(((lang == "fr") ? "Champs requêtables:" : "Data queryables:"), "data-queryables");
+            addRowFeature("{{ _('ADD_NAME_OF_COLLECTION') }}", "name");
+            addRowFeature("{{ _('ADD_DATABASE_HOST') }}", "dbhost", "10.68.130.179");
+            addRowFeature("{{ _('ADD_DATABASE_PORT') }}", "dbport", "5432");
+            addRowFeature("{{ _('ADD_DATABASE_NAME') }}", "dbname", "postgres");
+            addRowFeature("{{ _('ADD_DATABASE_USERNAME') }}", "dbuser", "postgres");
+            addRowFeature("{{ _('ADD_DATABASE_PASSWORD') }}", "dbpassword", "");
+            addRowFeature("{{ _('ADD_NAME_OF_SCHEMA') }}", "schema", "nrcan");
+            addRowFeatureNameOfTable("{{ _('ADD_NAME_OF_TABLE') }}", "table-name", "mines_de_métaux", "{{ _('ADD_LOAD_EXTENT') }}");
+            addRowFeature("{{ _('ADD_NAME_OF_DATA_ID_FIELD') }}", "data-id-field", "id");
+            addRowFeature("{{ _('ADD_QUERYABLES') }}", "data-queryables");
 
             // If any cogs
             if (res.cogs && res.cogs.length > 0) {
                 // Add coverage format name
                 //addRow(lang, "Format name:", "Nom du format:", "cov_format_name", getFormatName());
 
-                $("#result_type").val("coverage");
+                $("#select_type").val("coverage");
                 $('#cogs_section').removeClass("hidden");
                 
                 // For each cog
@@ -83,7 +90,7 @@
                         name += "-" + year;
 
                     // Add name row
-                    addRowCog(idx, c.name[lang], c.url, ((lang == "fr") ? "Nom:" : "Name:"), "name", name);
+                    addRowCog(idx, c.name[lang], c.url, "{{ _('ADD_NAME') }}", "name", name, "{{ _('ADD_NAME_OF_COLLECTION') }}", "{{ _('ADD_GEOMETRY_WKT') }}", );
                 });
             }
 
@@ -91,14 +98,15 @@
                 // Feature by default
                 $('#feature_section').removeClass("hidden");
             }
+
         }, function (err) {
-            _defaultFailedCallback(err);
+            showError(_readErrorMessage(err, "{{ lang }}"));
         });
     }
 
-    function onTypeChanged() {
+    function onTypeChanged(event) {
         // Depending on the selection
-        if ($("#result_type").val() == "feature") {
+        if ($("#select_type").val() == "feature") {
             $('#cogs_section').addClass("hidden");
             $('#feature_section').removeClass("hidden");
         }
@@ -109,19 +117,45 @@
         }
     }
 
+    function onParentChanged(event) {
+        // Depending on the selection
+        $("#parent_section_add").addClass("hidden");
+        if ($(event.currentTarget).val() == "NEW") {
+            $("#parent_section_add").removeClass("hidden");
+        }
+    }
+
     function onLoadExtent() {
-        // Query
-        queryExtent($(".cell-value-feature-input.table-name").val(), function (res) {
-            res = res.replace("BOX(", "").replace(")", "");
-            $(".cell-value-input.extent").val(res);
-        });
+        // Validate the db port is a number
+        if (parseInt($(".cell-value-feature-input.dbport").val()) > 0) {
+            // Query
+            queryExtent($(".cell-value-feature-input.schema").val(),
+                        $(".cell-value-feature-input.table-name").val(),
+                        4326,
+                        $(".cell-value-feature-input.dbhost").val(),
+                        parseInt($(".cell-value-feature-input.dbport").val()),
+                        $(".cell-value-feature-input.dbname").val(),
+                        $(".cell-value-feature-input.dbuser").val(),
+                        $(".cell-value-feature-input.dbpassword").val(),
+                function (res) {
+                    res = res.replace("BOX(", "").replace(")", "");
+                    $(".cell-value-input.extent").val(res);
+                },
+                function (err) {
+                    showError(_readErrorMessage(err, "{{ lang }}"));
+                }
+            );
+        }
+
+        else
+            showError("{{ _('ADD_MSG_PORT_NOT_A_NUMBER') }}");
     }
 
     function getFormatName() {
         return "GTiff";
     }
 
-    function addRow(lang, label_en, label_fr, className, inputValue) {
+    function addRow(label, className, inputValue) {
         // Add row
         var tr = document.createElement("tr");
         $('#result_table tbody').append(tr);
@@ -130,9 +164,7 @@
         var td = document.createElement("td");
         td.className = "cell-label";
         $(tr).append(td);
-        $(td).html(label_en);
-        if (lang == 'fr')
-            $(td).html(label_fr);
+        $(td).html(label);
         
         // Add cell
         var td = document.createElement("td");
@@ -146,13 +178,14 @@
         $(inpt).val(inputValue);
     }
 
-    function addRowCog(idx_cog, label_cog, url_cog, label_name, className, inputValue) {
+    function addRowCog(idx_cog, label_cog, url_cog, label_name, className, inputValue, label_name_coll_name, label_name_geom_wkt) {
         // Add row
         var tr = document.createElement("tr");
         $('#result_table_cogs tbody').append(tr);
 
         // Add cell
         var td = document.createElement("td");
+        $(td).addClass("cog-item-checkbox-cell");
         $(tr).append(td);
 
         var checkbox = document.createElement("input");
@@ -171,16 +204,28 @@
 
         td = document.createElement("td");
         $(tr).append(td);
+
+        var div1 = document.createElement("div");
+        $(td).append(div1);
         var span = document.createElement("span");
-        $(td).append(span);
-        $(span).text(label_name);
+        $(div1).append(span);
+        $(span).text(label_name_coll_name);
         var inpt = document.createElement("input");
         inpt.className = "cell-value-cog-input " + className;
-        $(td).html(inpt);
         $(inpt).val(inputValue);
+        $(div1).append(inpt);
+        
+        var div2 = document.createElement("div");
+        $(td).append(div2);
+        span = document.createElement("span");
+        $(div2).append(span);
+        $(span).text(label_name_geom_wkt);
+        inpt = document.createElement("textarea");
+        inpt.className = "cell-value-cog-wkt-input";
+        $(div2).append(inpt);
     }
 
-    function addRowFeature(label_name, className) {
+    function addRowFeature(label_name, className, value) {
         // Add row
         var tr = document.createElement("tr");
         $('#result_table_feature tbody').append(tr);
@@ -189,17 +234,19 @@
         var td = document.createElement("td");
         $(tr).append(td);
         var span = document.createElement("span");
-        $(span).text(label_name);
+        $(span).html(label_name);
         $(td).append(span);
 
         td = document.createElement("td");
         $(tr).append(td);
         var inpt = document.createElement("input");
         inpt.className = "cell-value-feature-input " + className;
+        if (value)
+            $(inpt).val(value);
         $(td).html(inpt);
     }
 
-    function addRowFeatureNameOfTable(label_name, className, button_label) {
+    function addRowFeatureNameOfTable(label_name, className, value, button_label) {
         // Add row
         var tr = document.createElement("tr");
         $('#result_table_feature tbody').append(tr);
@@ -208,13 +255,15 @@
         var td = document.createElement("td");
         $(tr).append(td);
         var span = document.createElement("span");
-        $(span).text(label_name);
+        $(span).html(label_name);
         $(td).append(span);
 
         td = document.createElement("td");
         $(tr).append(td);
         var inpt = document.createElement("input");
         inpt.className = "cell-value-feature-input " + className;
+        if (value)
+            $(inpt).val(value);
         $(td).append(inpt);
         
         var inpt = document.createElement("input");
@@ -225,106 +274,173 @@
         $(td).append(inpt);
     }
 
+    function processParent() {
+        var promise = new Promise(function(resolve, reject) {
+          // Depending on the parent
+          if ($("#select_parent").val() == "NEW") {
+            // Add the parent and fetch the parent_uuid from the response
+            addParent({
+                theme_uuid: $("#select_parent_theme").val(),
+                title_en: $("#parent_title_en").val(),
+                title_fr: $("#parent_title_fr").val()
+            }, function(parent_uuid) {
+                resolve(parent_uuid);  
+            }, function (err) {
+                showError(_readErrorMessage(err, "{{ lang }}"));
+            });
+          }
+
+          else {
+            // Resolve right away
+            resolve($("#select_parent").val());
+          }
+        });
+
+        // Return the promise
+        return promise;
+    }
+
     function uiAddCollection() {
-        // Build the payload
-        var payload ={};
-        payload.type = $("#result_type").val();
-        payload.metadata_uuid = $("#metadata_uuid").val();
-        payload.parent_uuid = "17e4197a-a764-475d-ab67-a2fb920e2300"
-        payload.title_en = $(".cell-value-input.title_en").val();
-        payload.title_fr = $(".cell-value-input.title_fr").val();
-        payload.description_en = $(".cell-value-input.description_en").val();
-        payload.description_fr = $(".cell-value-input.description_fr").val();
-        payload.keywords_en = $(".cell-value-input.keywords_en").val().split(",");
-        payload.keywords_fr = $(".cell-value-input.keywords_fr").val().split(",");
-        payload.crs = parseInt($(".cell-value-input.crs").val());
-        payload.extent_bbox = $(".cell-value-input.extent").val().split(",").map((x) => {return parseFloat(x);});
-        payload.extent_crs = "http://www.opengis.net/def/crs/OGC/1.3/CRS84";
-        payload.extent_temporal_begin = $(".cell-value-input.temporal_extent_begin").val();
-        payload.extent_temporal_end = $(".cell-value-input.temporal_extent_end").val();
+        // Clear
+        hideAlerts();
 
-        payload.geom_crs = 4617;
-        payload.geom_wkt = "POLYGON((-113.43 53.51, -113.43 53.59, -113.22 53.59, -113.22 53.51, -113.43 53.51))";
-        
-        // Depending on what kind of collection we're adding
-        if ($("#result_type").val() == "coverage") {
-            // If any cogs
-            if ($(".cog-item:checked").length > 0) {
-                // Add GTiff
-                payload.cov_format_name = "GTiff";
+        // Validate the crs is a number
+        if (!(parseInt($(".cell-value-input.crs").val()) > 0)) {
+            showError("{{ _('ADD_MSG_CRS_NOT_A_NUMBER') }}");
+            return;
+        }
 
-                // For each checked cog
-                var cogs = [];
-                $(".cog-item:checked").each((idx, cogItem) => {
-                    cogs.push({
-                        name: $(".cell-value-cog-input.name", $(cogItem).parents("tr")[0]).val(),
-                        cov_data: $(cogItem).val()
-                    });
-                });
+        // Validate the db port is a number
+        if ($("#select_type").val() == "feature" && !(parseInt($(".cell-value-feature-input.dbport").val()) > 0)) {
+            showError("{{ _('ADD_MSG_PORT_NOT_A_NUMBER') }}");
+            return;
+        }
 
-                // Validate the cogs
-                var valcogs = {};
-                var allUnique = true;
-                $(cogs).each((idx, cogItem) => {
-                    if (valcogs[cogItem.name])
-                        allUnique = false;
-                    valcogs[cogItem.name] = true;
-                });
-                
-                // If all unique names
-                if (allUnique) {
-                    // Proceed for each cog
-                    $(cogs).each((idx, cogItem) => {
-                        // Add to payload
-                        payload.name = cogItem.name;
-                        payload.cov_data = cogItem.cov_data;
+        // Process the parent information per the UI
+        processParent().then((parent_uuid) => {
+            // Build the payload
+            var payload ={};
+            payload.type = $("#select_type").val();
+            payload.metadata_uuid = $("#metadata_uuid").val();
+            payload.parent_uuid = parent_uuid;
+            payload.title_en = $(".cell-value-input.title_en").val();
+            payload.title_fr = $(".cell-value-input.title_fr").val();
+            payload.description_en = $(".cell-value-input.description_en").val();
+            payload.description_fr = $(".cell-value-input.description_fr").val();
+            payload.keywords_en = $(".cell-value-input.keywords_en").val().split(",");
+            payload.keywords_fr = $(".cell-value-input.keywords_fr").val().split(",");
+            payload.crs = parseInt($(".cell-value-input.crs").val());
+            payload.extent_bbox = $(".cell-value-input.extent").val().split(",").map((x) => {return parseFloat(x);});
+            payload.extent_crs = "http://www.opengis.net/def/crs/OGC/1.3/CRS84";
+            payload.extent_temporal_begin = $(".cell-value-input.temporal_extent_begin").val();
+            payload.extent_temporal_end = $(".cell-value-input.temporal_extent_end").val();
+            
+            // Depending on what kind of collection we're adding
+            if ($("#select_type").val() == "coverage") {
+                // If any cogs
+                if ($(".cog-item:checked").length > 0) {
+                    // Add GTiff
+                    payload.cov_format_name = "GTiff";
 
-                        // Call add collection service
-                        addCollection(payload, function(res) {
-                            alert("Collection(s) added.");
-                        }, function(err) {
-                            _defaultFailedCallback(err);
+                    // For each checked cog
+                    var cogs = [];
+                    $(".cog-item:checked").each((idx, cogItem) => {
+                        var p = $(cogItem).parents("tr")[0];
+                        cogs.push({
+                            name: $(".cell-value-cog-input.name", p).val(),
+                            geom_wkt: $(".cell-value-cog-wkt-input", p).val(),
+                            cov_data: $(cogItem).val()
                         });
                     });
+
+                    // Validate the cogs
+                    var valcogs = {};
+                    var allUnique = true;
+                    $(cogs).each((idx, cogItem) => {
+                        if (valcogs[cogItem.name])
+                            allUnique = false;
+                        valcogs[cogItem.name] = true;
+                    });
+                    
+                    // If all unique names
+                    if (allUnique) {
+                        // Proceed for each cog
+                        $(cogs).each((idx, cogItem) => {
+                            // Add to payload
+                            payload.name = cogItem.name;
+                            payload.cov_data = cogItem.cov_data;
+                            payload.geom_wkt = cogItem.geom_wkt;
+                            payload.geom_crs = 4617;
+
+                            // Call add collection service
+                            addCollection(payload, function(res) {
+                                showSuccess("{{ _('ADD_MSG_COLLECTION(S)_ADDED') }}");
+                            }, function(err) {
+                                showError(_readErrorMessage(err, "{{ lang }}"));
+                            });
+                        });
+                    }
+
+                    else {
+                        showError("{{ _('ADD_MSG_MAKE_SURE_ALL_UNIQUE') }}");
+                    }
                 }
 
                 else {
-                    alert("Make sure all collection names are unique");
+                    showError("{{ _('ADD_MSG_NO_COVERAGE_FILES_TO_ADD') }}");
                 }
             }
 
-            else {
-                alert("No coverage files to add");
+            else if ($("#select_type").val() == "feature") {
+                // Add to payload
+                payload.name = $(".cell-value-feature-input.name").val();
+                payload.db_host = $(".cell-value-feature-input.dbhost").val();
+                payload.db_port = parseInt($(".cell-value-feature-input.dbport").val());
+                payload.db_name = $(".cell-value-feature-input.dbname").val();
+                payload.db_user = $(".cell-value-feature-input.dbuser").val();
+                payload.db_password = $(".cell-value-feature-input.dbpassword").val();
+                payload.table_schema = $(".cell-value-feature-input.schema").val();
+                payload.table_name = $(".cell-value-feature-input.table-name").val();
+                payload.table_id_field = $(".cell-value-feature-input.data-id-field").val();
+                var dq = $(".cell-value-feature-input.data-queryables").val();
+                payload.table_queryables = dq.split(",").map((itm) => { return itm.trim(); });
+
+                // Call add collection service
+                addCollection(payload, function(res) {
+                    showSuccess("{{ _('ADD_MSG_COLLECTION_ADDED') }}");
+                }, function(err) {
+                    showError(_readErrorMessage(err, "{{ lang }}"));
+                });
             }
-        }
 
-        else {
-            // Add to payload
-            payload.name = $(".cell-value-feature-input.name").val();
-            payload.table_name = $(".cell-value-feature-input.table-name").val();
-            payload.table_id_field = $(".cell-value-feature-input.data-id-field").val();
-            var dq = $(".cell-value-feature-input.data-queryables").val();
-            payload.table_queryables = dq.split(",").map((itm) => { return itm.trim(); });
-
-            // Call add collection service
-            addCollection(payload, function(res) {
-                alert("Collection added.");
-            }, function(err) {
-                _defaultFailedCallback(err);
-            });
-        }
+            else {
+                showError("Unknown provider.");
+            }
+        });
     }
+
+    function showSuccess(message) {
+        $(".alert").addClass("hidden");
+        $("#alert-success").removeClass("hidden");
+        $("#alert-success p").html(message || "Success!");
+    }
+
+    function showError(message) {
+        $(".alert").addClass("hidden");
+        $("#alert-danger").removeClass("hidden");
+        $("#alert-danger p").html(message || "Error!");
+    }
+
+    function hideAlerts() {
+        $(".alert").addClass("hidden");
+    }
+
 </script>
 {% endblock %}
 
 {% block nrcanheadercontent %}
-{% if lang == 'fr' %}
-<h1 property="name" id="wb-cont">Ajouter une collection</h1>
-<p>Inscrivez l'identifiant UID à utiliser pour le pré-remplissage du formulaire.</p>
-{% else %}
-<h1 property="name" id="wb-cont">Add a Collection</h1>
-<p>Type the Metadata UID to use in order to pre-fill the form.</p>
-{% endif %}
+<h1 property="name" id="wb-cont">{{ _('ADD_COLLECTION') }}</h1>
+<p>{{ _('ADD_COLLECTION_DO') }}</p>
 <div>
     <input id="metadata_uuid" type="text" placeholder="{UUID}" class="submit_on_enter"
            value="62de5952-a5eb-4859-b086-22a8ba8024b8" style="width:90%;"/>
@@ -334,15 +450,9 @@
             Feature: 0313f880-492c-4f4e-95ef-f53e4216576d<br/>
         </p>
         <div class="query-parameters">
-            {% if lang == 'fr' %}
             <div>
-                <input type="button" value="Pré-remplir" onclick="uiQueryMetadata('{{lang}}');"/>
+                <input type="button" value="{{ _('ADD_PRE_FILL') }}" onclick="uiQueryMetadata('{{lang}}');"/>
             </div>
-            {% else %}
-            <div>
-                <input type="button" value="Pre-fill" onclick="uiQueryMetadata('{{lang}}');"/>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
@@ -356,17 +466,45 @@
     <div class="result_wrapper_inner hidden">
         <div>
             <label>TYPE:</label>
-            <select id="result_type" onchange="onTypeChanged(event);">
-                {% if lang == 'fr' %}
-                <option value="feature">Vecteur</option>
-                <option value="coverage">Couverture</option>
-                {% else %}
-                <option value="feature">Feature</option>
-                <option value="coverage">Coverage</option>
-                {% endif %}
+            <select id="select_type" onchange="onTypeChanged(event);">
+                <option value="feature">{{ _('ADD_TYPE_FEATURE') }}</option>
+                <option value="coverage">{{ _('ADD_TYPE_COVERAGE') }}</option>
             </select>
         </div>
 
+        <div id="parent_section">
+            <label>PARENT:</label>
+            <select id="select_parent" onchange="onParentChanged(event);">
+                <option value="NEW">{{ _('ADD_NEW_PARENT') }}
+                </option>
+                {% for t in parents %}
+                    {% for p in t.parents %}
+                        <option value="{{ p.parent_uuid }}">{{ p.title[lang] }} - ({{ t.title[lang] }})</option>
+                    {% endfor %}
+                {% endfor %}
+            </select>
+            <div id="parent_section_add" class="">
+                <label>THEME:</label>
+                <select id="select_parent_theme">
+                    {% for t in parents %}
+                        <option value="{{ t.theme_uuid }}">{{ t.title[lang] }}</option>
+                    {% endfor %}
+                </select>
+                <table id="parent_section_add_table">
+                <thead></thead>
+                <tbody>
+                    <tr>
+                        <td>{{ _('ADD_TITLE_ENGLISH') }}</td>
+                        <td><input id="parent_title_en" type="text" /></td>
+                    </tr>
+                    <tr>
+                        <td>{{ _('ADD_TITLE_FRENCH') }}</td>
+                        <td><input id="parent_title_fr" type="text" /></td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
         <div id="common_header" class="common-header"><strong>INFORMATION:</strong>
         <table id="result_table">
             <thead></thead>
@@ -378,11 +516,7 @@
             </div>
             <div class="cog-check-all-section">
                 <input id="cog_all" type="checkbox" checked="checked" />
-                {% if lang == 'fr' %}
-                <label for="cog_all">Cocher tous</label>
-                {% else %}
-                <label for="cog_all">Check all</label>
-                {% endif %}
+                <label for="cog_all">{{ _('ADD_CHECK_ALL') }}</label>
             </div>
 
             <table id="result_table_cogs">
@@ -401,15 +535,29 @@
         </div>
 
         <div class="bottom">
-            {% if lang == 'fr' %}
-            <input type="button" value="Ajouter" onclick="uiAddCollection()" />
-            {% else %}
-            <input type="button" value="Add" onclick="uiAddCollection()" />
-            {% endif %}
+            <input type="button" value="{{ _('ADD_ADD') }}" onclick="uiAddCollection()" />
         </div>
     </div>
-    
 </div>
+
+<div class="alerts-section">
+    <div class="wb-init alert alert-success hidden" id="alert-success">
+        <p></p>
+    </div>
+
+    <div class="wb-init alert alert-danger hidden" id="alert-danger">
+        <p></p>
+        <!--<p>You successfully read <a href="#" class="alert-link">this important alert message</a>.</p>-->
+    </div>
+
+    <!-- <div class="wb-init alert alert-info hidden" id="alert-info">
+        <p></p>
+    </div>
+
+    <div class="wb-init alert alert-warning hidden" id="alert-warning">
+        <p></p>
+    </div> -->
+</div> 
 
 {% endblock %}
 

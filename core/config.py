@@ -13,14 +13,16 @@ API_URL_PROD = "http://localhost:5001/api"
 # Database variables
 DB_HOST = {{DB_HOST}}
 DB_NAME = {{DB_NAME}}
-DB_NAME_FEATURES = {{DB_NAME_FEATURES}}
 DB_USER = {{DB_USER}}
 DB_PASS = {{DB_PASS}}
 DB_SCHEMA = {{DB_SCHEMA}}
-DB_SCHEMA_FEATURES = ["public"]
+DB_PG_CODE = "XXQUA"
 
 # Catalog URL
 CATALOG_URL = "https://maps.canada.ca/geonetwork/srv/eng/csw?request=GetRecordById&service=CSW&version=2.0.2&elementSetName=full&outputSchema=http://www.isotc211.org/2005/gmd&typeNames=gmd:MD_Metadata&constraintLanguage=FILTER&id={metadata_uuid}"
+
+# PyGeoAPI URL
+PYGEOAPI_URL = "http://localhost:5000/reload_resources"
 
 # Determine if using Connexion API.
 # Connexion is essentially useful for the Swagger UI and define the spec first.
@@ -44,7 +46,10 @@ ROLES = {
 DB_STORED_PROCS = {
     "ADD_COLLECTION_COVERAGE": "czs.czs_add_collection_coverage",
     "ADD_COLLECTION_FEATURE": "czs.czs_add_collection_feature",
-    "DELETE_COLLECTION": "czs.czs_delete_collection"
+    "UPDATE_COLLECTION": "czs.czs_update_collection_geom",
+    "DELETE_COLLECTION": "czs.czs_delete_collection",
+    "ADD_PARENT": "czs.czs_add_parent",
+    "DELETE_PARENT": "czs.czs_delete_parent"
 }
 
 DB_TABLE_COLLECTION_PARENT = {

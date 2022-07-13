@@ -20,12 +20,12 @@ def html_admin_index():
     """
 
     try:
-        return rt_core.render_page('admin/home.html', '/admin')
+        return rt_core.render_page('admin/home.html')
 
     except Exception as err:
         # Weird, just proceed
         print(err)
-        return rt_core.render_page('home.html', '/fr/accueil')
+        return rt_core.render_page('home.html')
 
 
 @routes.route('/admin/users')
@@ -36,9 +36,9 @@ def html_admin_users():
     """
 
     try:
-        return rt_core.render_page('admin/users.html', '/admin/users', users=user.get_users())
+        return rt_core.render_page('admin/users.html', users=user.get_users())
 
     except Exception as err:
         # Weird, just proceed
         print(err)
-        return rt_core.render_page('home.html', '/fr/accueil')
+        return rt_core.render_page('home.html')

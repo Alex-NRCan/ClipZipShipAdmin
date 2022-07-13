@@ -22,24 +22,13 @@
 
 {% block nrcanheadercontent %}
 
-{% if lang == 'fr' %}
-<h1>Connexion</h1>
-<div>Nom d'utilisateur</div>
-<div><input id="username" type="text" placeholder="nom d'utilisateur" class="submit_on_enter"/></div>
-<div>Mot de passe</div>
-<div><input id="password" type="password" placeholder="mot de passe" class="submit_on_enter"/></div>
+<h1>{{ _('LOGIN_LOG_IN') }}</h1>
+<div>{{ _('LOGIN_USERNAME') }}</div>
+<div><input id="username" type="text" placeholder="{{ _('LOGIN_USERNAME') }}" class="submit_on_enter"/></div>
+<div>{{ _('LOGIN_PASSWORD') }}</div>
+<div><input id="password" type="password" placeholder="{{ _('LOGIN_PASSWORD') }}" class="submit_on_enter"/></div>
 <br>
-<div><input type="button" value="Se connecter" onclick="uiLoginUser();"/></div>
-
-{% else %}
-<h1>Login</h1>
-<div>Username</div>
-<div><input id="username" type="text" placeholder="username" class="submit_on_enter"/></div>
-<div>Password</div>
-<div><input id="password" type="password" placeholder="password" class="submit_on_enter"/></div>
-<br>
-<div><input type="button" value="Login" onclick="uiLoginUser();"/></div>
-{% endif %}
+<div><input type="button" value="{{ _('LOGIN_LOG_IN') }}" onclick="uiLoginUser();"/></div>
 
 {% endblock %}
 

@@ -53,12 +53,26 @@ main.container .container.headline p {
 
 .czs #cogs_section,
 .czs #feature_section,
+.czs #parent_section,
 .czs #common_header {
   margin-top: 20px;
 }
 
+.czs #parent_section_add {
+  margin-left: 50px;
+}
+
 .czs .cog-check-all-section {
   /*float: right;*/
+}
+
+.czs .note-detail {
+  font-size: smaller;
+  font-style: italic;
+}
+
+.czs .cog-item-checkbox-cell {
+  min-width: 275px;
 }
 
 .czs label.cog-item-label {
@@ -70,17 +84,18 @@ main.container .container.headline p {
 }
 
 .czs .cell-value-cog-input,
+.czs .cell-value-cog-wkt-input,
 .czs .cell-value-feature-input {
     width: 100%;
 }
 
 .czs .cell-value-feature-input.table-name {
-  width: 80%;
+  width: 60%;
 }
 
 .czs .load-extent {
   float: right;
-  width: 16%;
+  width: 36%;
 }
 
 .czs-wrapper-table {
@@ -142,8 +157,10 @@ main.container .container.headline p {
     border-radius: 4px;
 }
 
-
-
+.czs .bottom {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
 
 
 .admin-content .head_username {
