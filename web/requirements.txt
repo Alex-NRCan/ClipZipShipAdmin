@@ -10,6 +10,8 @@ Flask>=0.10.1
 Flask-JWT-Extended
 bcrypt~=3.2.0
 json2table~=1.1.5
+MarkupSafe<2.1.0
 
 # Install packages for web
 flask_wtf
+flask_babel
